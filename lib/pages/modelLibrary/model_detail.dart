@@ -1,10 +1,13 @@
+import 'package:flutter_diy_print/widget/animate_button.dart';
+
 import '../../network/api.dart';
 import '../../network/http_config.dart';
 import '../../network/http_request.dart';
-
+import 'dart:async';
 import '../../utils/ScreenAdapter.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter/services.dart';
 
@@ -51,6 +54,8 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
   //id 获取obj对象
   getApiData() async {
     print("数据请求开始");
+    print(
+        "https://www.myminifactory.com/api/v2/objects/${widget.arguments["objId"]}?page=1&per_page=8&key=3a934958-fd58-4a42-ae15-7da531a0cd80");
     try {
       Response response = await Dio().get(
           "https://www.myminifactory.com/api/v2/objects/${widget.arguments["objId"]}?page=1&per_page=8&key=3a934958-fd58-4a42-ae15-7da531a0cd80");
@@ -68,19 +73,58 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
     }
   }
 
+  /*打印模型 
+   *  step1: 获取模型大小
+   *  step2:通过step1 response里的ID轮询查询进度
+   *  step3:进度 -1 表示出错 100表示获取
+   *  step4：拿到 模型x、y、z 数据 与 打印机 xyz 判断 
+  */
+  _printModel(fileName) async {
+    List modelUrlList = []; //模型下载地址
+    var modelPrintId; //response id
+    modelUrlList.add(
+        "https://www.myminifactory.com/download/${widget.arguments['objId']}?downloadfile=${fileName}");
+    print(Config.BASE_URL + modelSize);
+    var res =
+        await NetRequest.post(Config.BASE_URL + modelSize, data: modelUrlList);
+    if (res["code"] == 200) {
+      modelPrintId = res["data"];
+      Timer.periodic(Duration(seconds: 1), (timer) async {
+        // 定时器 查询 模型下载进度
+        var result = await NetRequest.get(
+            Config.BASE_URL + checkModel + "/${modelPrintId}");
+        print(Config.BASE_URL + checkModel + "/${modelPrintId}");
+        if (result["code"] == 200) {
+          print("progress = ${result["data"]["progress"]}");
+          if (result["data"]["progress"] == -1) {
+            print("系统出错");
+            timer.cancel();
+            timer = null;
+          } else if (result["data"]["progress"] == 100) {
+            print(result["data"]["modelSizeInfos"][0]);
+            timer.cancel();
+            timer = null;
+          }
+        } else {
+          print(result["msg"]);
+        }
+      });
+    }
+  }
+
   //收藏
   _collection() async {
-    print(_isCollection);
+    if (mounted) {
+      setState(() {
+        _isCollection = !_isCollection;
+      });
+    }
     if (_favorite.contains(widget.arguments["objId"].toString())) {
       var res = await NetRequest.get(
           Config.BASE_URL + favorite + "/0/${widget.arguments["objId"]}");
       if (res['code'] == 200) {
         print("取消收藏成功");
-        if (mounted) {
-          setState(() {
-            _isCollection = false;
-          });
-        }
+        showToast("Cancel the collection",position: ToastPosition.top, backgroundColor: Colors.grey[500]);
       } else {
         print(res['msg']);
       }
@@ -89,11 +133,7 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
           Config.BASE_URL + favorite + "/1/${widget.arguments["objId"]}");
       if (res['code'] == 200) {
         print("收藏成功");
-        if (mounted) {
-          setState(() {
-            _isCollection = true;
-          });
-        }
+        showToast("Collection of success",backgroundColor: Colors.grey[500]);
       } else {
         print(res['msg']);
       }
@@ -113,45 +153,58 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
         child: Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-                icon: Icon(
-                  Icons.keyboard_arrow_left,
-                  size: ScreenAdapter.size(80),
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  Navigator.pop(context);
-                }),
-            title: Text(
-              "Details of the Model",
-              style: TextStyle(color: Colors.white),
+            appBar: AppBar(
+              leading: IconButton(
+                  icon: Icon(
+                    Icons.keyboard_arrow_left,
+                    size: ScreenAdapter.size(80),
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  }),
+              title: Text(
+                "Details of the Model",
+                style: TextStyle(color: Colors.white),
+              ),
+              actions: <Widget>[
+                Padding(
+                    padding: EdgeInsets.only(right: 10),
+                    child:
+                        //  GestureDetector(
+                        //   onTap: () {
+                        //     if (mounted) {
+                        //       setState(() {
+                        //         _isCollection = !_isCollection;
+                        //       });
+                        //     }
+                        //   },
+                        //   child: _isCollection
+                        //       ? AnimateButton(size: ScreenAdapter.size(60))
+                        //       : AnimatedUnFav(size: ScreenAdapter.size(60)),
+                        // )
+                         IconButton(
+                      icon: Icon(
+                        _isCollection ? Icons.favorite : Icons.favorite_border,
+                        size: ScreenAdapter.size(60),
+                        color: Colors.white,
+                      ),
+                      onPressed: _collection,
+                    ))
+              ],
             ),
-            actions: <Widget>[
-              Padding(
-                  padding: EdgeInsets.only(right: 10),
-                  child: IconButton(
-                    icon: Icon(
-                      _isCollection ? Icons.favorite : Icons.favorite_border,
-                      size: ScreenAdapter.size(60),
-                      color: Colors.white,
-                    ),
-                    onPressed: _collection,
-                  ))
-            ],
-          ),
-          body: _modelData != null
-              ? ListView(
-//                  physics: NeverScrollableScrollPhysics(),
-                  children: <Widget>[
-                    _banner(),
-                  ],
-                )
-              : SpinKitWave(
-                  color: Color(0xFFF79432),
-                  size: 20.0,
-                ),
-        ));
+            body: _modelData != null
+                ? ListView(
+        //                  physics: NeverScrollableScrollPhysics(),
+                    children: <Widget>[
+                      _banner(),
+                    ],
+                  )
+                : SpinKitWave(
+                    color: Color(0xFFF79432),
+                    size: 20.0,
+                  ),
+          ));
   }
 
   Widget _banner() {
@@ -253,19 +306,24 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
                     "${_modelData['files']['items'][index]['filename']}",
                     overflow: TextOverflow.ellipsis,
                   ),
-                  Text("预计耗��� : 05:30:52")
                 ],
               ),
             ),
-            Container(
-              padding: EdgeInsets.fromLTRB(20, 8, 20, 8),
-              margin: EdgeInsets.only(right: ScreenAdapter.width(20)),
-              decoration: BoxDecoration(
-                  color: Color(0xFFF79432),
-                  borderRadius: BorderRadius.circular(ScreenAdapter.size(20))),
-              child: Text(
-                "Print",
-                style: TextStyle(color: Colors.white),
+            GestureDetector(
+              onTap: () {
+                _printModel(_modelData['files']['items'][index]['filename']);
+              },
+              child: Container(
+                padding: EdgeInsets.fromLTRB(20, 8, 20, 8),
+                margin: EdgeInsets.only(right: ScreenAdapter.width(20)),
+                decoration: BoxDecoration(
+                    color: Color(0xFFF79432),
+                    borderRadius:
+                        BorderRadius.circular(ScreenAdapter.size(20))),
+                child: Text(
+                  "Print",
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
           ],

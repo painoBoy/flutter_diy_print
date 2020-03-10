@@ -70,9 +70,9 @@ class _NavigatorBarPageState extends State<NavigatorBarPage> {
           type: BottomNavigationBarType.fixed,
           // selectedItemColor:Colors.green,
           items: [
-            createItem("workspace", "工作台"),
-            createItem("model_lib", "模型库"),
-            createItem("account", "我的"),
+            createItem("workspace", "Workspace"),
+            createItem("model_lib", "Model Lib"),
+            createItem("account", "Account"),
           ],
           onTap: (int index) {
             if(index ==0){

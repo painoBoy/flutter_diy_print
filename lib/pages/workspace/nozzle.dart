@@ -8,7 +8,15 @@
  */
 
 import 'package:flutter/material.dart';
+import '../../network/http_config.dart';
+import '../../network/http_request.dart';
+import '../../network/api.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import '../provider/nozzle.dart';
+import '../provider/printCommand.dart';
 
 class NozzleWidget extends StatefulWidget {
   @override
@@ -17,6 +25,25 @@ class NozzleWidget extends StatefulWidget {
 
 class _NozzleWidgetState extends State<NozzleWidget> {
   double _progress = 0;
+
+  //设置喷嘴温度
+  _setPrinerNozzleWarm() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    print(prefs.getString("userId"));
+    Map params = {
+      "userUUID": prefs.getString("userId"),
+      "printerId": Provider.of<PrinterIdProvider>(context).printId,
+      "command": "M104 S${Provider.of<NozzleWarm>(context).nozzleWarm}"
+    };
+    var res =
+        await NetRequest.post(Config.BASE_URL + sendCommand, data: params);
+    if(res["code"] == 200){
+      showToast("Temperature setting successful",position: ToastPosition.bottom,backgroundColor: Colors.grey[400]);
+    }else{
+      showToast(res["msg"],position: ToastPosition.bottom,backgroundColor: Colors.grey[400]);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -26,22 +53,8 @@ class _NozzleWidgetState extends State<NozzleWidget> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          _operationPanelTilte(_progress), // 
-          // _operationPanel(),
-          Container(
-            width: ScreenUtil().setWidth(700),
-            child: Slider(
-              value: _progress,
-              label: '$_progress',
-              min: 0,
-              max: 100,
-              onChanged: (value) {
-                setState(() {
-                  _progress = value.roundToDouble();
-                });
-              },
-            ),
-          ),
+          _operationPanelTilte(), //title
+          _operationPanel(), //热床操作面板
           _okBtn(),
         ],
       ),
@@ -49,7 +62,7 @@ class _NozzleWidgetState extends State<NozzleWidget> {
   }
 
   //操作面板 title
-  Widget _operationPanelTilte(_progress) {
+  Widget _operationPanelTilte() {
     return Container(
       padding: EdgeInsets.fromLTRB(15, 15, 15, 0),
       child: Row(
@@ -65,7 +78,8 @@ class _NozzleWidgetState extends State<NozzleWidget> {
                 style: TextStyle(color: Colors.black),
                 children: <TextSpan>[
                   TextSpan(
-                      text: "${_progress.round()}°C",
+                      text:
+                          "${Provider.of<NozzleWarm>(context).nozzleWarm.round()}°C",
                       style: TextStyle(color: Color(0xFFF79432)))
                 ]),
           ),
@@ -77,64 +91,29 @@ class _NozzleWidgetState extends State<NozzleWidget> {
 
   //操作面板
   Widget _operationPanel() {
-    double _progress = 0;
     return Container(
-        margin: EdgeInsets.all(20),
-        width: ScreenUtil().width,
-        height: ScreenUtil().setHeight(120),
-        decoration: BoxDecoration(color: Colors.red),
-        child: Column(
-          children: <Widget>[
-            // Container(
-            //   alignment: Alignment.centerLeft,
-            //   width: ScreenUtil().setWidth(450),
-            //   // height: ScreenUtil().setHeight(60),
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //     children: <Widget>[
-            //       Text("0"),
-            //       Text("50"),
-            //       Text("100"),
-            //     ],
-            //   ),
-            // ),
-            Container(
-              alignment: Alignment.centerLeft,
-              width: ScreenUtil().setWidth(450),
-              height: 20,
-              decoration: BoxDecoration(color: Colors.blueAccent),
-            ),
-            Container(
-              child: Row(
-                children: <Widget>[
-                  // Padding(
-                  //   padding: EdgeInsets.only(left: ScreenUtil().setWidth(0)),
-                  //   child: Image.asset("assets/images/workspace/line.png",width: ScreenUtil().setWidth(450),)
-                  // )
-                  Slider(
-                    value: _progress,
-                    label: '$_progress',
-                    min: 0,
-                    max: 100,
-                    onChanged: (value) {
-                      setState(() {
-                        _progress = value.roundToDouble();
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ));
+      width: ScreenUtil().setWidth(700),
+      child: Slider(
+        value: Provider.of<NozzleWarm>(context).nozzleWarm,
+        label: '${Provider.of<NozzleWarm>(context).nozzleWarm}',
+        min: 0,
+        max: 100,
+        onChanged: (value) {
+          Provider.of<NozzleWarm>(context).changeNozzleWarm(value);
+        },
+      ),
+    );
   }
 
   Widget _okBtn() {
     return Container(
-      child: Image.asset(
-        "assets/images/workspace/okBtn.png",
-        width: ScreenUtil().setWidth(100),
-        height: ScreenUtil().setHeight(100),
+      child: GestureDetector(
+        onTap: _setPrinerNozzleWarm, 
+        child: Image.asset(
+          "assets/images/workspace/okBtn.png",
+          width: ScreenUtil().setWidth(100),
+          height: ScreenUtil().setHeight(100),
+        ),
       ),
     );
   }

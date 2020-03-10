@@ -13,7 +13,7 @@ class HttpRequest {
       });
   // 1.创建dio实例
   static final dio = Dio(baseOptions);
-
+  
   static Future request(String url,
       {String method = "get", Map<String, dynamic> params}) async {
     //2.发送网络请求
@@ -125,12 +125,14 @@ class NetRequest {
       headers: {});
 
   static get(path, {params}) async {
-    print("get数据请求开始");
+    print("get数据请求开始===>url =${path}");
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     Options options = Options(headers: {
       // HttpHeaders.acceptHeader: "accept: application/json;charset=UTF-8",
       "Cookie": "JSESSIONID=" + prefs.getString("JSESSIONID")
     });
+  print("JSESSION=${prefs.getString("JSESSIONID")}");
     try {
       Response response = await Dio().get(path, queryParameters: params, options: options);
       print("Response->>>>>>>>>>>");

@@ -51,7 +51,7 @@ class _ModelLibraryPageState extends State<ModelLibraryPage> {
   getSwiperList() async {
     try {
       Response response = await Dio().get(
-          "https://www.myminifactory.com/api/v2/search?q=null&page=1&per_page=4&sort=visits&key=3a934958-fd58-4a42-ae15-7da531a0cd80");
+          "https://www.myminifactory.com/api/v2/search?page=1&per_page=4&sort=popularity&key=3a934958-fd58-4a42-ae15-7da531a0cd80");
       // print(response);
       print("获取Swiper+++++++++++++++");
       setState(() {
@@ -87,9 +87,11 @@ class _ModelLibraryPageState extends State<ModelLibraryPage> {
         value: SystemUiOverlayStyle.light,
         child: Scaffold(
             appBar: AppBar(
+              centerTitle:true,
               brightness: Brightness.light,
                 title: Text(
-                  "Models Library",
+                  // "Models Library",
+                  "MyMinifactory Models Lib ",
                   style: TextStyle(color: Colors.white),
                 ),
                 actions: <Widget>[
@@ -204,12 +206,14 @@ class _ModelLibraryPageState extends State<ModelLibraryPage> {
       );
     }
     return Container(
+      alignment: Alignment.center,
+      padding: EdgeInsets.all(ScreenAdapter.width(10)),
       height: ScreenAdapter.height(320),
       width: ScreenAdapter.getScreenWidth(),
       // padding: EdgeInsets.all(1),
       child: GridView.count(
         scrollDirection: Axis.horizontal,
-        // physics: new NeverScrollableScrollPhysics(),
+        physics: new NeverScrollableScrollPhysics(),
         crossAxisCount: 2,
         // padding: EdgeInsets.all(ScreenAdapter.width(5)),
         children: _modelList.map((item) {
@@ -230,10 +234,14 @@ class _ModelLibraryPageState extends State<ModelLibraryPage> {
           );
         },
         child: Container(
-          width:ScreenAdapter.getScreenWidth() / 4 - 10,
+          alignment: Alignment.center,
+          width:ScreenAdapter.getScreenWidth() / 4 ,
           height: ScreenAdapter.height(180),
-          child: Column(children: <Widget>[
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
             Container(
+              alignment: Alignment.center,
                 child:
                     // FadeInImage.assetNetwork(
                     //   placeholder: '',

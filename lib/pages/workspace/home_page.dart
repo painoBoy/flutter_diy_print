@@ -26,11 +26,14 @@ import '../../network/api.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/services.dart';
 import '../../utils/ScreenAdapter.dart';
+import 'package:provider/provider.dart';
+import '../provider/nozzle.dart';
+import '../provider/printCommand.dart';
 
 GlobalKey<_HomeState> childKey = GlobalKey();
 
 class Home extends StatefulWidget {
-  Home({ Key key}) : super(key: key);
+  Home({Key key}) : super(key: key);
   @override
   _HomeState createState() => _HomeState();
 }
@@ -52,7 +55,7 @@ class _HomeState extends State<Home> {
     isBindPrint();
     getUserBidPrinter(); //获取用户绑定的打印机
     getPrinterInfo();
-    initTimer();
+    // initTimer();
   }
 
   initTimer() {
@@ -70,9 +73,10 @@ class _HomeState extends State<Home> {
   //获取用户绑定的打印机
   getUserBidPrinter() async {
     var res = await NetRequest.get(Config.BASE_URL + getUserPrint);
-    print(res);
+    print("打印机列表=====>${res}");
     if (res['code'] == 200) {
       if (res['data'].length != 0) {
+        Provider.of<PrinterIdProvider>(context).getPrinterId(res['data'][0]["id"]);
         if (mounted) {
           setState(() {
             _printerList = res['data'];
@@ -153,6 +157,20 @@ class _HomeState extends State<Home> {
         Config.BASE_URL + getPrintStatus + "/${prefs.getString('printMac')}");
     print(res);
   }
+
+  //想打印机发送命令
+  // sendPrintCommand() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   print(prefs.getString("userId"));
+  //   Map params = {
+  //     "userUUID": prefs.getString("userId"),
+  //     "printerId": _currentPrinterId,
+  //     "command": "M104 S${Provider.of<NozzleWarm>(context).nozzleWarm}"
+  //   };
+  //   var res =
+  //       await NetRequest.post(Config.BASE_URL + sendCommand, data: params);
+  //   print(res);
+  // }
 
   //扫描二维码 绑定打印机
   Future _scan() async {
@@ -341,7 +359,8 @@ class _HomeState extends State<Home> {
             ),
             Text(
               _printerStatusText,
-              style: TextStyle(color: Colors.grey[700]),
+              style: TextStyle(
+                  color: Colors.grey[700], fontSize: ScreenAdapter.size(20)),
             ),
           ])
         ],
@@ -351,12 +370,15 @@ class _HomeState extends State<Home> {
 
   //选择打印机
   _selectPrinter(id, name) {
+    Provider.of<PrinterIdProvider>(context).getPrinterId(id); 
     getPrinterInfo();
+
     if (mounted) {
       setState(() {
         _currentPrinterId = id;
       });
     }
+    print("打印机id=${_currentPrinterId}");
     showToast("已选择${name}打印机", position: ToastPosition.top);
     Navigator.pop(context);
   }

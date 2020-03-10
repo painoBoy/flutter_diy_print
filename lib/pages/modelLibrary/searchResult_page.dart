@@ -36,22 +36,42 @@ class _SearchResultPageState extends State<SearchResultPage> {
     super.initState();
   }
 
+  //请求模型数据
   getListData() async {
-    print("数据请求开始");
+    print("数据请求开始----------page = ${_page}");
     print(
         "https://www.myminifactory.com/api/v2/search?q=${widget.arguments['text']}&page=${_page}&per_page=${_pageSize}&sort=popularity&key=3a934958-fd58-4a42-ae15-7da531a0cd80");
     try {
       Response response = await Dio().get(
-          "https://www.myminifactory.com/api/v2/search?q=${widget.arguments['text']}&page=1&per_page=20&sort=popularity&key=3a934958-fd58-4a42-ae15-7da531a0cd80");
+          "https://www.myminifactory.com/api/v2/search?q=${widget.arguments['text']}&page=${_page}&per_page=${_pageSize}&sort=popularity&key=3a934958-fd58-4a42-ae15-7da531a0cd80");
       // print(response);
-      print("Response->>>>>>>>>>>");
-      if (mounted) {
-        setState(() {
-          _total_count = response.data["total_count"];
-          _modelList.addAll(response.data['items']);
-        });
+      // print("Response->>>>>>>>>>>${response.data['items']['id']}");
+      print("response length-----${response.data["items"].length}");
+
+      //筛选免费模型
+      if (response.data['items'].length != 0) {
+        for (int i = 0; i < response.data['items'].length; i++) {
+          print("price ========${response.data['items'][i]['price']}");
+          if (response.data['items'][i]['price'] == null) {
+            if (mounted) {
+              setState(() {
+                _total_count = response.data["total_count"];
+                _modelList.add(response.data['items'][i]);
+              });
+            }
+          }
+        }
       }
-      print(_modelList.length);
+
+      // if (response.data['items'].length != 0) {
+      //   if (mounted) {
+      //     setState(() {
+      //       _total_count = response.data["total_count"];
+      //       _modelList.addAll(response.data['items']);
+      //     });
+      //   }
+      // }
+      // print(_modelList.length);
     } catch (e) {
       print(e);
     }
@@ -156,14 +176,13 @@ class _SearchResultPageState extends State<SearchResultPage> {
           await getListData();
         },
         onLoad: () async {
-          _page = _page++;
+          _page = _page + 1;
           await getListData();
         },
         slivers: <Widget>[
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
-                print(index);
                 return _modelItem(index);
               },
               childCount: _modelList.length,
@@ -171,16 +190,6 @@ class _SearchResultPageState extends State<SearchResultPage> {
           ),
         ],
       );
-
-      // <Widget>[
-      //   ListView.builder(
-      //       padding: EdgeInsets.only(top: 20),
-      //       scrollDirection: Axis.vertical,
-      //       itemCount: 5,
-      //       itemBuilder: (BuildContext context, int index) {
-      //         return _modelItem();
-      //       })
-      // ]);
     } else {
       if (_total_count != null) {
         return Container(
@@ -387,103 +396,114 @@ class _SearchResultPageState extends State<SearchResultPage> {
 
   Widget _modelItem(index) {
     return InkWell(
-      onTap: (){
-        Navigator.pushNamed(context, "/modelDetail",arguments:{"objId":_modelList[index]['id']});
-      },
-      child:Container(
-      child: Card(
+        onTap: () {
+          Navigator.pushNamed(context, "/modelDetail",
+              arguments: {"objId": _modelList[index]['id']});
+        },
         child: Container(
-          child: Row(
-            children: <Widget>[
-              Container(
-                height: 100.0,
-                child: AspectRatio(
-                  aspectRatio: 1.0,
-                  child: Container(
-                    // color: Colors.grey[200],
-                    child: Image.network(
-                        "${_modelList[index]['images'][0]['thumbnail']['url']}"),
-                  ),
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Container(
-                    padding: EdgeInsets.all(
-                      10.0,
+          child: Card(
+            child: Container(
+              child: Row(
+                children: <Widget>[
+                  Container(
+                    height: 100.0,
+                    child: AspectRatio(
+                      aspectRatio: 1.0,
+                      child: Container(
+                        // color: Colors.grey[200],
+                        child: Image.network(
+                            "${_modelList[index]['images'][0]['thumbnail']['url']}"),
+                      ),
                     ),
-                    color: Colors.white,
-                    child: Column(
-                      children: <Widget>[
-                        Row(
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Container(
+                        padding: EdgeInsets.all(
+                          10.0,
+                        ),
+                        color: Colors.white,
+                        child: Column(
                           children: <Widget>[
+                            Row(
+                              children: <Widget>[
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Container(
+                                      width: 120.0,
+                                      // height: 15.0,
+                                      child: Text(
+                                        "${_modelList[index]['name']}",
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    // Container(
+                                    //   width: 60.0,
+                                    //   height: 10.0,
+                                    //   margin: EdgeInsets.only(top: 8.0),
+                                    //   color: Colors.grey[200],
+                                    // ),
+                                  ],
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: SizedBox(),
+                                ),
+                                Icon(
+                                  Icons.star,
+                                  color: Colors.grey[200],
+                                )
+                              ],
+                            ),
+                            SizedBox(
+                              height: 8.0,
+                            ),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Container(
-                                  width: 120.0,
-                                  // height: 15.0,
+                                  width: double.infinity,
+                                  height: ScreenAdapter.height(70),
+                                  // color: Colors.grey[200],
                                   child: Text(
-                                    "${_modelList[index]['name']}",
+                                    "${_modelList[index]['description']}",
+                                    style: TextStyle(
+                                        fontSize: ScreenAdapter.size(20)),
                                     overflow: TextOverflow.ellipsis,
+                                    maxLines: 3,
                                   ),
                                 ),
-                                // Container(
-                                //   width: 60.0,
-                                //   height: 10.0,
-                                //   margin: EdgeInsets.only(top: 8.0),
-                                //   color: Colors.grey[200],
-                                // ),
+                                SizedBox(
+                                  height: 4.0,
+                                ),
+                                Container(
+                                  height: 10.0,
+                                  // color: Colors.grey[200],
+                                ),
+                                SizedBox(
+                                  height: 4.0,
+                                ),
+                                Container(
+                                  // height: 10.0,
+                                  // width: 150.0,
+                                  child: _modelList[index]['designer']
+                                              ['printing_since'] !=
+                                          null
+                                      ? Text(
+                                          "${_modelList[index]['designer']['printing_since']['date'].substring(0, 10)}")
+                                      : Text(''),
+                                ),
                               ],
                             ),
-                            Expanded(
-                              flex: 1,
-                              child: SizedBox(),
-                            ),
-                            Icon(
-                              Icons.star,
-                              color: Colors.grey[200],
-                            )
                           ],
-                        ),
-                        SizedBox(
-                          height: 8.0,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Container(
-                              width: double.infinity,
-                              height: ScreenAdapter.height(70),
-                              // color: Colors.grey[200],
-                              child: Text("${_modelList[index]['description']}",style: TextStyle(fontSize: ScreenAdapter.size(20)),overflow: TextOverflow.ellipsis,maxLines: 3,),
-                            ),
-                            SizedBox(
-                              height: 4.0,
-                            ),
-                            Container(
-                              height: 10.0,
-                              // color: Colors.grey[200],
-                            ),
-                            SizedBox(
-                              height: 4.0,
-                            ),
-                            Container(
-                              // height: 10.0,
-                              // width: 150.0,
-                              child: _modelList[index]['designer']['printing_since'] !=null ?Text("${_modelList[index]['designer']['printing_since']['date'].substring(0,10)}"):Text(''),
-                            ),
-                          ],
-                        ),
-                      ],
-                    )),
+                        )),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-    )
-    );
+        ));
     // Container(
     //     padding: EdgeInsets.only(bottom: ScreenAdapter.height(10)),
     //     decoration: BoxDecoration(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import '../provider/nozzle.dart';
 
 class HotBedWidget extends StatefulWidget {
   @override
@@ -16,24 +18,9 @@ class _HotBedWidgetState extends State<HotBedWidget> {
       margin: EdgeInsets.only(top: ScreenUtil().setHeight(20)),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-
         children: <Widget>[
-          _operationPanelTilte(_progress), // 
-          // _operationPanel(),
-          Container(
-            width: ScreenUtil().setWidth(700),
-            child: Slider(
-              value: _progress,
-              label: '$_progress',
-              min: 0,
-              max: 100,
-              onChanged: (value) {
-                setState(() {
-                  _progress = value.roundToDouble();
-                });
-              },
-            ),
-          ),
+          _operationPanelTilte(_progress), //
+          _operationPanel(),
           _okBtn(),
         ],
       ),
@@ -57,7 +44,8 @@ class _HotBedWidgetState extends State<HotBedWidget> {
                 style: TextStyle(color: Colors.black),
                 children: <TextSpan>[
                   TextSpan(
-                      text: "${_progress.round()}°C",
+                      text:
+                          "${Provider.of<NozzleWarm>(context).hotBedWarm.round()}°C",
                       style: TextStyle(color: Color(0xFFF79432)))
                 ]),
           ),
@@ -69,56 +57,18 @@ class _HotBedWidgetState extends State<HotBedWidget> {
 
   //操作面板
   Widget _operationPanel() {
-    double _progress = 0;
     return Container(
-        margin: EdgeInsets.all(20),
-        width: ScreenUtil().width,
-        height: ScreenUtil().setHeight(120),
-        decoration: BoxDecoration(color: Colors.red),
-        child: Column(
-          children: <Widget>[
-            // Container(
-            //   alignment: Alignment.centerLeft,
-            //   width: ScreenUtil().setWidth(450),
-            //   // height: ScreenUtil().setHeight(60),
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //     children: <Widget>[
-            //       Text("0"),
-            //       Text("50"),
-            //       Text("100"),
-            //     ],
-            //   ),
-            // ),
-            Container(
-              alignment: Alignment.centerLeft,
-              width: ScreenUtil().setWidth(450),
-              height: 20,
-              decoration: BoxDecoration(color: Colors.blueAccent),
-            ),
-            Container(
-              child: Row(
-                children: <Widget>[
-                  // Padding(
-                  //   padding: EdgeInsets.only(left: ScreenUtil().setWidth(0)),
-                  //   child: Image.asset("assets/images/workspace/line.png",width: ScreenUtil().setWidth(450),)
-                  // )
-                  Slider(
-                    value: _progress,
-                    label: '$_progress',
-                    min: 0,
-                    max: 100,
-                    onChanged: (value) {
-                      setState(() {
-                        _progress = value.roundToDouble();
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ));
+      width: ScreenUtil().setWidth(700),
+      child: Slider(
+        value: Provider.of<NozzleWarm>(context).nozzleWarm,
+        label: '${Provider.of<NozzleWarm>(context).hotBedWarm}',
+        min: 0,
+        max: 100,
+        onChanged: (value) {
+          Provider.of<NozzleWarm>(context).changeHotBedWarm(value);
+        },
+      ),
+    );
   }
 
   Widget _okBtn() {

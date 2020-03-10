@@ -34,7 +34,8 @@ class _SearchModelPageState extends State<SearchModelPage> {
   }
 
   _handleClick(keyword) {
-    Navigator.pushNamed(context, "/searchResult", arguments: {"text": keyword}).then((res){
+    Navigator.pushNamed(context, "/searchResult", arguments: {"text": keyword})
+        .then((res) {
       _getHistoryData();
     });
   }
@@ -42,9 +43,10 @@ class _SearchModelPageState extends State<SearchModelPage> {
   //获取本地搜索历史记录
   _getHistoryData() async {
     var _historyListData = await SearchServices.getHistoryList();
-    if(mounted)setState(() {
-      this._historyListData = _historyListData;
-    });
+    if (mounted)
+      setState(() {
+        this._historyListData = _historyListData;
+      });
   }
 
   //删除历史记录
@@ -56,18 +58,18 @@ class _SearchModelPageState extends State<SearchModelPage> {
           barrierDismissible: false, // user must tap button!
           builder: (BuildContext context) {
             return CupertinoAlertDialog(
-              title: Text('确定清除所有历史记录吗?',
+              title: Text('Are you sure you want to delete?',
                   style: TextStyle(fontSize: ScreenAdapter.size(30))),
               // content: Text('删除成功无法恢复'),
               actions: <Widget>[
                 CupertinoDialogAction(
-                  child: Text('取消'),
+                  child: Text('Cancel'),
                   onPressed: () {
                     Navigator.of(context).pop("0");
                   },
                 ),
                 CupertinoDialogAction(
-                  child: Text('确定'),
+                  child: Text('Ok'),
                   onPressed: () {
                     Navigator.of(context).pop("1");
                     SearchServices.clearHistoryList();
@@ -84,7 +86,7 @@ class _SearchModelPageState extends State<SearchModelPage> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: Text(
-                "确定清除所有历史记录吗?",
+                "Are you sure you want to delete?",
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: ScreenAdapter.size(30)),
@@ -92,14 +94,14 @@ class _SearchModelPageState extends State<SearchModelPage> {
               content: SingleChildScrollView(
                 child: ListBody(
                   children: <Widget>[
-                    Text('删除成功无法恢复.'),
+                    Text('Deleting this part will permanently erase it.'),
                   ],
                 ),
               ),
               actions: <Widget>[
                 FlatButton(
                   child: Text(
-                    '取消',
+                    'Cancel',
                     style: TextStyle(color: Colors.grey[600]),
                   ),
                   onPressed: () {
@@ -107,7 +109,7 @@ class _SearchModelPageState extends State<SearchModelPage> {
                   },
                 ),
                 FlatButton(
-                  child: Text('确定'),
+                  child: Text('Ok'),
                   onPressed: () {
                     Navigator.of(context).pop("1");
                     SearchServices.clearHistoryList();
@@ -124,12 +126,14 @@ class _SearchModelPageState extends State<SearchModelPage> {
   Widget build(BuildContext context) {
     ScreenAdapter.init(context);
     return Scaffold(
-        body: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        _searchHead(),
-        _searchNotice(),
-      ],
+        body: SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          _searchHead(),
+          _searchNotice(),
+        ],
+      ),
     ));
   }
 
@@ -159,9 +163,9 @@ class _SearchModelPageState extends State<SearchModelPage> {
                     onSubmitted: (text) {
                       SearchServices.setHistoryData(text);
                       Navigator.pushNamed(context, "/searchResult",
-                          arguments: {"text": text}).then((res){
-                            this._getHistoryData();
-                          });
+                          arguments: {"text": text}).then((res) {
+                        this._getHistoryData();
+                      });
                     },
                     // style: TextStyle(color: Colors.grey),
                     decoration: InputDecoration(
@@ -175,7 +179,7 @@ class _SearchModelPageState extends State<SearchModelPage> {
                         ),
                       ),
                       border: InputBorder.none,
-                      hintText: "教育",
+                      hintText: "search you want",
                       hintStyle: TextStyle(color: Colors.grey[400]),
                     ),
                   ),
@@ -186,11 +190,11 @@ class _SearchModelPageState extends State<SearchModelPage> {
                   Navigator.pop(context);
                 },
                 child: Container(
-                  width: ScreenAdapter.width(100),
+                  width: ScreenAdapter.width(130),
                   margin: EdgeInsets.only(left: ScreenAdapter.width(20)),
-                  child: Text("取消",
+                  child: Text("Cancel",
                       style: TextStyle(
-                          fontSize: ScreenAdapter.size(33),
+                          fontSize: ScreenAdapter.size(30),
                           color: Colors.white)),
                 ),
               ),
@@ -215,19 +219,23 @@ class _SearchModelPageState extends State<SearchModelPage> {
             child: Wrap(
               children: <Widget>[
                 InkWell(
-                  onTap: (){_handleClick('Store');},
+                  onTap: () {
+                    _handleClick('Store');
+                  },
                   child: Container(
-                  margin: EdgeInsets.all(5),
-                  padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                      borderRadius:
-                          BorderRadius.circular(ScreenAdapter.size(20)),
-                      color: Colors.grey[300]),
-                  child: Text("Store"),
-                ),
+                    margin: EdgeInsets.all(5),
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                        borderRadius:
+                            BorderRadius.circular(ScreenAdapter.size(20)),
+                        color: Colors.grey[300]),
+                    child: Text("Store"),
+                  ),
                 ),
                 InkWell(
-                  onTap: (){_handleClick('robot');},
+                  onTap: () {
+                    _handleClick('robot');
+                  },
                   child: Container(
                     margin: EdgeInsets.all(5),
                     padding: EdgeInsets.all(5),
@@ -239,7 +247,9 @@ class _SearchModelPageState extends State<SearchModelPage> {
                   ),
                 ),
                 InkWell(
-                  onTap: (){_handleClick('Education');},
+                  onTap: () {
+                    _handleClick('Education');
+                  },
                   child: Container(
                     margin: EdgeInsets.all(5),
                     padding: EdgeInsets.all(5),
@@ -251,7 +261,9 @@ class _SearchModelPageState extends State<SearchModelPage> {
                   ),
                 ),
                 InkWell(
-                  onTap: (){_handleClick('Scan the World');},
+                  onTap: () {
+                    _handleClick('Scan the World');
+                  },
                   child: Container(
                     margin: EdgeInsets.all(5),
                     padding: EdgeInsets.all(5),
@@ -263,7 +275,9 @@ class _SearchModelPageState extends State<SearchModelPage> {
                   ),
                 ),
                 InkWell(
-                  onTap: (){_handleClick('Accessibility');},
+                  onTap: () {
+                    _handleClick('Accessibility');
+                  },
                   child: Container(
                     margin: EdgeInsets.all(5),
                     padding: EdgeInsets.all(5),
@@ -275,7 +289,9 @@ class _SearchModelPageState extends State<SearchModelPage> {
                   ),
                 ),
                 InkWell(
-                  onTap: (){_handleClick('plane');},
+                  onTap: () {
+                    _handleClick('plane');
+                  },
                   child: Container(
                     margin: EdgeInsets.all(5),
                     padding: EdgeInsets.all(5),

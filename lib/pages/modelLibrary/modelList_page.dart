@@ -24,13 +24,12 @@ class ModelListPage extends StatefulWidget {
 }
 
 class _ModelListPageState extends State<ModelListPage> {
-
   EasyRefreshController _controller = EasyRefreshController();
 
   List _modelList = [];
   int _page = 1;
   int _pageSize = 20;
-  bool _noMore  = false;
+  bool _noMore = false;
 
   @override
   void initState() {
@@ -49,19 +48,24 @@ class _ModelListPageState extends State<ModelListPage> {
           "https://www.myminifactory.com/api/v2/search?page=${_page}&per_page=${_pageSize}&sort=visits&cat=${widget.arguments['objId']}&key=3a934958-fd58-4a42-ae15-7da531a0cd80");
       // print(response);
       print("Response->>>>>>>>>>>${response.data['total_count']}");
-      if(response.data['items'].length == 0){
-        if(mounted) {
+      //筛选免费模型
+      for (int i = 0; i < response.data['items'].length; i++) {
+        if (response.data['items'][i]['price'] == null) {
+          if (mounted) {
+            setState(() {
+              _modelList.add(response.data["items"][i]);
+            });
+          }
+        }
+      }
+      if (response.data['items'].length == 0) {
+        if (mounted) {
           setState(() {
             _noMore = true;
           });
         }
       }
-      if(mounted){
-        setState(() {
-          // total_count = response.data["total_count"];
-          _modelList.addAll(response.data["items"]);
-        });
-      }
+
       print("数据一页lenght ==${_modelList.length}");
     } catch (e) {
       print(e);
@@ -91,66 +95,50 @@ class _ModelListPageState extends State<ModelListPage> {
         ),
         body: _modelList.length != 0
             ? Container(
-            width: ScreenAdapter.getScreenWidth(),
-            child: EasyRefresh(
-                controller: _controller,
-                header: DeliveryHeader(
-                  backgroundColor: Colors.grey[100],
-                ),
-                onRefresh: () async{
-                  _page = 1;
-                  _modelList = [];
-                  await getModelApiData();
-                  _controller.resetLoadState();
-
-                },
-                onLoad: () async {
-                  print("上拉加载-----");
-                  _page = _page + 1;
-                  await getModelApiData();
-                  _controller.finishLoad(noMore:_noMore );
-                },
-                child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 0,
-                        mainAxisSpacing: 0,
-                        childAspectRatio: 1
+                width: ScreenAdapter.getScreenWidth(),
+                child: EasyRefresh(
+                    controller: _controller,
+                    header: DeliveryHeader(
+                      backgroundColor: Colors.grey[100],
                     ),
-                    itemCount: _modelList.length,
-                    scrollDirection: Axis.vertical,
-
-                    itemBuilder: (context,int index){
-                      return _modelPicItem(index);
-                    })
-
-            )
-
-//              GridView.builder(
-//                  itemCount: _modelList.length,
-//                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-//                    crossAxisCount: 2,
-//                    crossAxisSpacing: 10,
-//                    mainAxisSpacing: 10,
-//                    // childAspectRatio: .9
-//                  ),
-//                  itemBuilder: (BuildContext context, int index) {
-//                    return _modelPicItem(index);
-//                  }),
-        )
+                    onRefresh: () async {
+                      _page = 1;
+                      _modelList = [];
+                      await getModelApiData();
+                      _controller.resetLoadState();
+                    },
+                    onLoad: () async {
+                      print("上拉加载-----");
+                      _page = _page + 1;
+                      await getModelApiData();
+                      _controller.finishLoad(noMore: _noMore);
+                    },
+                    child: GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 0,
+                            mainAxisSpacing: 0,
+                            childAspectRatio: 1),
+                        itemCount: _modelList.length,
+                        scrollDirection: Axis.vertical,
+                        itemBuilder: (context, int index) {
+                          return _modelPicItem(index);
+                        })))
             : Container(
-          child: SpinKitWave(
-            color: Color(0xFFF79432),
-            size: 30.0,
-          ),
-        ),
-      ),);
+                child: SpinKitWave(
+                  color: Color(0xFFF79432),
+                  size: 30.0,
+                ),
+              ),
+      ),
+    );
   }
 
   Widget _modelPicItem(index) {
     return InkWell(
-        onTap: (){
-          Navigator.pushNamed(context, "/modelDetail",arguments: {"objId": _modelList[index]["id"]});
+        onTap: () {
+          Navigator.pushNamed(context, "/modelDetail",
+              arguments: {"objId": _modelList[index]["id"]});
         },
         child: Container(
           height: ScreenAdapter.height(300),
@@ -161,7 +149,8 @@ class _ModelListPageState extends State<ModelListPage> {
                 height: ScreenAdapter.height(240),
                 child: FadeInImage.memoryNetwork(
                   placeholder: kTransparentImage,
-                  image: '${_modelList[index]["images"][0]["thumbnail"]["url"]}',
+                  image:
+                      '${_modelList[index]["images"][0]["thumbnail"]["url"]}',
                   width: double.infinity,
                   height: double.infinity,
                   fit: BoxFit.fill,
@@ -187,13 +176,15 @@ class _ModelListPageState extends State<ModelListPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text(
-                      "Auth: ${_modelList[index]['designer']['username'] == null ? '':_modelList[index]['designer']['username']}",
+                      "Auth: ${_modelList[index]['designer']['username'] == null ? '' : _modelList[index]['designer']['username']}",
                       style: TextStyle(
                           color: Colors.grey[400],
                           fontSize: ScreenAdapter.size(20)),
                     ),
                     Text(
-                      _modelList[index]['designer']['printing_since'] == null?" ":"${_modelList[index]['designer']['printing_since']['date'].substring(0,10)}",
+                      _modelList[index]['designer']['printing_since'] == null
+                          ? " "
+                          : "${_modelList[index]['designer']['printing_since']['date'].substring(0, 10)}",
                       textAlign: TextAlign.right,
                       style: TextStyle(
                           color: Colors.grey[400],
@@ -204,7 +195,6 @@ class _ModelListPageState extends State<ModelListPage> {
               ),
             ],
           ),
-        )
-    );
+        ));
   }
 }
