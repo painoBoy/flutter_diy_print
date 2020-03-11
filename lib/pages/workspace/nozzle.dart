@@ -15,7 +15,7 @@ import 'package:oktoast/oktoast.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
-import '../provider/nozzle.dart';
+import '../provider/printerParams.dart';
 import '../provider/printCommand.dart';
 
 class NozzleWidget extends StatefulWidget {
@@ -38,7 +38,7 @@ class _NozzleWidgetState extends State<NozzleWidget> {
     var res =
         await NetRequest.post(Config.BASE_URL + sendCommand, data: params);
     if(res["code"] == 200){
-      showToast("Temperature setting successful",position: ToastPosition.bottom,backgroundColor: Colors.grey[400]);
+      showToast("Set up successfully",position: ToastPosition.bottom,backgroundColor: Colors.grey[400]);
     }else{
       showToast(res["msg"],position: ToastPosition.bottom,backgroundColor: Colors.grey[400]);
     }
@@ -104,7 +104,7 @@ class _NozzleWidgetState extends State<NozzleWidget> {
       ),
     );
   }
-
+  
   Widget _okBtn() {
     return Container(
       child: GestureDetector(

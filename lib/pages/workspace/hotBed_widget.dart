@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_diy_print/utils/ScreenAdapter.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import '../provider/nozzle.dart';
+import '../provider/printerParams.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../provider/printCommand.dart';
+import 'package:oktoast/oktoast.dart';
+import '../../network/api.dart';
+import '../../network/http_config.dart';
+import '../../network/http_request.dart';
 
 class HotBedWidget extends StatefulWidget {
   @override
@@ -9,7 +17,32 @@ class HotBedWidget extends StatefulWidget {
 }
 
 class _HotBedWidgetState extends State<HotBedWidget> {
-  double _progress = 0;
+  bool isShowLoading = false;
+  //设置热床温度
+  _setPrinerHotBedWarm() async {
+    if(mounted)setState(() {
+      isShowLoading = true;
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    print(prefs.getString("userId"));
+    Map params = {
+      "userUUID": prefs.getString("userId"),
+      "printerId": Provider.of<PrinterIdProvider>(context).printId,
+      "command": "M140 S${Provider.of<NozzleWarm>(context).hotBedWarm}"
+    };
+    var res = await NetRequest.post(Config.BASE_URL + sendCommand, data: params);
+    if(mounted)setState(() {
+      isShowLoading = false;
+    });
+    if (res["code"] == 200) {
+      showToast("Set up successfully",
+          position: ToastPosition.bottom, backgroundColor: Colors.grey[400]);
+    } else {
+      showToast(res["msg"],
+          position: ToastPosition.bottom, backgroundColor: Colors.grey[400]);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -19,16 +52,17 @@ class _HotBedWidgetState extends State<HotBedWidget> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          _operationPanelTilte(_progress), //
+          _operationPanelTitle(), //
           _operationPanel(),
           _okBtn(),
+          isShowLoading?CupertinoActivityIndicator():Text(""),
         ],
       ),
     );
   }
 
   //操作面板 title
-  Widget _operationPanelTilte(_progress) {
+  Widget _operationPanelTitle() {
     return Container(
       padding: EdgeInsets.fromLTRB(15, 15, 15, 0),
       child: Row(
@@ -60,7 +94,7 @@ class _HotBedWidgetState extends State<HotBedWidget> {
     return Container(
       width: ScreenUtil().setWidth(700),
       child: Slider(
-        value: Provider.of<NozzleWarm>(context).nozzleWarm,
+        value: Provider.of<NozzleWarm>(context).hotBedWarm,
         label: '${Provider.of<NozzleWarm>(context).hotBedWarm}',
         min: 0,
         max: 100,
@@ -72,11 +106,14 @@ class _HotBedWidgetState extends State<HotBedWidget> {
   }
 
   Widget _okBtn() {
-    return Container(
-      child: Image.asset(
-        "assets/images/workspace/okBtn.png",
-        width: ScreenUtil().setWidth(100),
-        height: ScreenUtil().setHeight(100),
+    return GestureDetector(
+      onTap: _setPrinerHotBedWarm,
+      child: Container(
+        child: Image.asset(
+          "assets/images/workspace/okBtn.png",
+          width: ScreenUtil().setWidth(100),
+          height: ScreenUtil().setHeight(100),
+        ),
       ),
     );
   }

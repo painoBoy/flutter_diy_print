@@ -1,15 +1,15 @@
-import 'package:flutter_diy_print/widget/animate_button.dart';
-
 import '../../network/api.dart';
 import '../../network/http_config.dart';
 import '../../network/http_request.dart';
 import 'dart:async';
 import '../../utils/ScreenAdapter.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter/services.dart';
+import 'package:oktoast/oktoast.dart';
 
 class ModelDetailPage extends StatefulWidget {
   final Map arguments;
@@ -22,7 +22,9 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
   bool _isCollection = false;
   Map _modelData;
   int _currentIndex = 0;
+  Timer _timer;
   List _favorite = [];
+  bool isLoading = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -85,31 +87,75 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
     modelUrlList.add(
         "https://www.myminifactory.com/download/${widget.arguments['objId']}?downloadfile=${fileName}");
     print(Config.BASE_URL + modelSize);
+    if (mounted)
+      setState(() {
+        isLoading = true;
+      });
     var res =
         await NetRequest.post(Config.BASE_URL + modelSize, data: modelUrlList);
     if (res["code"] == 200) {
       modelPrintId = res["data"];
-      Timer.periodic(Duration(seconds: 1), (timer) async {
+      _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
         // 定时器 查询 模型下载进度
         var result = await NetRequest.get(
             Config.BASE_URL + checkModel + "/${modelPrintId}");
         print(Config.BASE_URL + checkModel + "/${modelPrintId}");
+
         if (result["code"] == 200) {
           print("progress = ${result["data"]["progress"]}");
           if (result["data"]["progress"] == -1) {
+            if (mounted)
+              setState(() {
+                isLoading = false;
+              });
             print("系统出错");
             timer.cancel();
             timer = null;
           } else if (result["data"]["progress"] == 100) {
-            print(result["data"]["modelSizeInfos"][0]);
+            if (mounted)
+              setState(() {
+                isLoading = false;
+              });
             timer.cancel();
             timer = null;
+            print(result["data"]["modelSizeInfos"][0]);
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            List tempMotorStroke = prefs.getString("printSize").split(",");
+            var _newtempMotorStroke = tempMotorStroke.map((val) {
+              return double.tryParse(val);
+            }).toList();
+            bool isCanPrint = false;
+            for (int i = 0; i < _newtempMotorStroke.length; i++) {
+              if (result["data"]["modelSizeInfos"][0]["modelSize"][i] <
+                  _newtempMotorStroke[i]) {
+                isCanPrint = true;
+              } else {
+                isCanPrint = false;
+                break; // 如果模型条件有不满足打印条件 立即跳出
+              }
+            }
+            if (isCanPrint) {
+              //发起打印任务
+
+            } else {
+              showToast("The Model size is too large",
+                  backgroundColor: Colors.grey[600]);
+            }
+            print("打印机=====> ${_newtempMotorStroke}");
+            print(
+                "模型大小=====> ${result["data"]["modelSizeInfos"][0]["modelSize"]}");
+            print("能打印机吗======>${isCanPrint}");
           }
         } else {
           print(result["msg"]);
         }
       });
     }
+  }
+
+  //发起打印机任务
+  startPrintTask() async {
+    var res = await NetRequest.post(Config.BASE_URL + createPrintTask);
   }
 
   //收藏
@@ -124,7 +170,8 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
           Config.BASE_URL + favorite + "/0/${widget.arguments["objId"]}");
       if (res['code'] == 200) {
         print("取消收藏成功");
-        showToast("Cancel the collection",position: ToastPosition.top, backgroundColor: Colors.grey[500]);
+        showToast("Cancel the collection",
+            position: ToastPosition.top, backgroundColor: Colors.grey[500]);
       } else {
         print(res['msg']);
       }
@@ -133,7 +180,7 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
           Config.BASE_URL + favorite + "/1/${widget.arguments["objId"]}");
       if (res['code'] == 200) {
         print("收藏成功");
-        showToast("Collection of success",backgroundColor: Colors.grey[500]);
+        showToast("Collection of success", backgroundColor: Colors.grey[500]);
       } else {
         print(res['msg']);
       }
@@ -148,63 +195,87 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
     }
   }
 
+  //页面关闭销毁timer
+  @override
+  void dispose() {
+    super.dispose();
+    if (_timer != null) {
+      _timer.cancel();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
         child: Scaffold(
-            appBar: AppBar(
-              leading: IconButton(
-                  icon: Icon(
-                    Icons.keyboard_arrow_left,
-                    size: ScreenAdapter.size(80),
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  }),
-              title: Text(
-                "Details of the Model",
-                style: TextStyle(color: Colors.white),
-              ),
-              actions: <Widget>[
-                Padding(
-                    padding: EdgeInsets.only(right: 10),
-                    child:
-                        //  GestureDetector(
-                        //   onTap: () {
-                        //     if (mounted) {
-                        //       setState(() {
-                        //         _isCollection = !_isCollection;
-                        //       });
-                        //     }
-                        //   },
-                        //   child: _isCollection
-                        //       ? AnimateButton(size: ScreenAdapter.size(60))
-                        //       : AnimatedUnFav(size: ScreenAdapter.size(60)),
-                        // )
-                         IconButton(
-                      icon: Icon(
-                        _isCollection ? Icons.favorite : Icons.favorite_border,
-                        size: ScreenAdapter.size(60),
-                        color: Colors.white,
-                      ),
-                      onPressed: _collection,
-                    ))
-              ],
+          appBar: AppBar(
+            leading: IconButton(
+                icon: Icon(
+                  Icons.keyboard_arrow_left,
+                  size: ScreenAdapter.size(80),
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                }),
+            title: Text(
+              "Details of the Model",
+              style: TextStyle(color: Colors.white),
             ),
-            body: _modelData != null
-                ? ListView(
-        //                  physics: NeverScrollableScrollPhysics(),
-                    children: <Widget>[
-                      _banner(),
-                    ],
-                  )
-                : SpinKitWave(
-                    color: Color(0xFFF79432),
-                    size: 20.0,
-                  ),
-          ));
+            actions: <Widget>[
+              Padding(
+                  padding: EdgeInsets.only(right: 10),
+                  child: IconButton(
+                    icon: Icon(
+                      _isCollection ? Icons.favorite : Icons.favorite_border,
+                      size: ScreenAdapter.size(60),
+                      color: Colors.white,
+                    ),
+                    onPressed: _collection,
+                  ))
+            ],
+          ),
+          body: _modelData != null
+              ? ListView(
+                  // physics: NeverScrollableScrollPhysics(), 
+                  children: <Widget>[
+                    Stack(
+                      children: <Widget>[
+                        _banner(),
+                        isLoading
+                            ? Positioned(
+                                top: ScreenAdapter.getScreenHeight() / 2 - 50,
+                                left: ScreenAdapter.getScreenWidth() / 2 - 50,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      // color: Colors.white
+                                      ),
+                                  child: Column(
+                                    children: <Widget>[
+                                      SpinKitCircle(
+                                        color: Color(0xFFF79432),
+                                        size: 50.0,
+                                      ),
+                                      Text(
+                                        "Model is downloading...",
+                                        style:
+                                            TextStyle(color: Colors.grey[600]),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              )
+                            : Text("")
+                      ],
+                    )
+                  ],
+                )
+              : SpinKitWave(
+                  color: Color(0xFFF79432),
+                  size: 20.0,
+                ),
+        ));
   }
 
   Widget _banner() {

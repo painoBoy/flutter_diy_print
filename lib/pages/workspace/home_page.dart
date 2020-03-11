@@ -27,7 +27,7 @@ import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/services.dart';
 import '../../utils/ScreenAdapter.dart';
 import 'package:provider/provider.dart';
-import '../provider/nozzle.dart';
+import '../provider/printerParams.dart';
 import '../provider/printCommand.dart';
 
 GlobalKey<_HomeState> childKey = GlobalKey();
@@ -44,7 +44,7 @@ class _HomeState extends State<Home> {
   bool isbindPirnt = false;
   List _printerList = []; //绑定用户打印机列表
   int _currentPrinterId; // 当前选中打印机id
-  String _printerStatusText = "打印机未连接";
+  String _printerStatusText = "打印机离线";
 
   Timer _timer; //轮询查询打印机状态
 
@@ -54,7 +54,6 @@ class _HomeState extends State<Home> {
 
     isBindPrint();
     getUserBidPrinter(); //获取用户绑定的打印机
-    getPrinterInfo();
     // initTimer();
   }
 
@@ -72,17 +71,35 @@ class _HomeState extends State<Home> {
 
   //获取用户绑定的打印机
   getUserBidPrinter() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
     var res = await NetRequest.get(Config.BASE_URL + getUserPrint);
     print("打印机列表=====>${res}");
     if (res['code'] == 200) {
       if (res['data'].length != 0) {
-        Provider.of<PrinterIdProvider>(context).getPrinterId(res['data'][0]["id"]);
-        if (mounted) {
-          setState(() {
-            _printerList = res['data'];
-            _currentPrinterId = res['data'][0]["id"]; //默认第一个打印机
-          });
+        if (prefs.getInt("selectedPrintId") != null) {
+          Provider.of<PrinterIdProvider>(context)
+              .getPrinterId(prefs.getInt("selectedPrintId"));
+          if (mounted)
+            setState(() {
+              _printerList = res['data'];
+              _currentPrinterId =
+                  prefs.getInt("selectedPrintId"); //初始化选择本地存储的已选择打印机Id
+            });
+        } else {
+          //如果未选择过就默认索引为1的打印机id
+          Provider.of<PrinterIdProvider>(context)
+              .getPrinterId(res['data'][0]["id"]);
+          prefs.setString( //如果未选择 就默认本地存储
+              "printSize", res['data'][0]["parameter"]["motorStroke"]);
+          if (mounted)
+            setState(() {
+              _printerList = res['data'];
+              _currentPrinterId = res['data'][0]["id"];
+            });
         }
+
+        getPrinterInfo();
       }
     }
   }
@@ -104,49 +121,55 @@ class _HomeState extends State<Home> {
 
   //获取打印机详情信息
   getPrinterInfo() async {
-    print(Config.BASE_URL + printerInfo + "/${_currentPrinterId}");
-    var res = await NetRequest.get(
-        Config.BASE_URL + printerInfo + "/${_currentPrinterId}");
-    print("res===${res}");
-
-    switch (res["data"]["printState"]) {
-      case 0:
-        if (mounted) {
-          setState(() {
-            _printerStatusText = "打印机未连接";
-          });
+    print(Config.BASE_URL +
+        printerInfo +
+        "/${Provider.of<PrinterIdProvider>(context).printId}");
+    var res = await NetRequest.get(Config.BASE_URL +
+            printerInfo +
+            "/${Provider.of<PrinterIdProvider>(context).printId}")
+        .then((res) {
+      print("res===${res}");
+      if (res["code"] == 200) {
+        switch (res["data"]["printState"]) {
+          case 0:
+            if (mounted) {
+              setState(() {
+                _printerStatusText = "打印机离线";
+              });
+            }
+            break;
+          case 1:
+            if (mounted) {
+              setState(() {
+                _printerStatusText = "已连接";
+              });
+            }
+            break;
+          case 2:
+            if (mounted) {
+              setState(() {
+                _printerStatusText = "打印准备中";
+              });
+            }
+            break;
+          case 3:
+            if (mounted) {
+              setState(() {
+                _printerStatusText = "打印中";
+              });
+            }
+            break;
+          case 4:
+            if (mounted) {
+              setState(() {
+                _printerStatusText = "打印暂停";
+              });
+            }
+            break;
+          default:
         }
-        break;
-      case 1:
-        if (mounted) {
-          setState(() {
-            _printerStatusText = "已连接";
-          });
-        }
-        break;
-      case 2:
-        if (mounted) {
-          setState(() {
-            _printerStatusText = "打印准备中";
-          });
-        }
-        break;
-      case 3:
-        if (mounted) {
-          setState(() {
-            _printerStatusText = "打印中";
-          });
-        }
-        break;
-      case 4:
-        if (mounted) {
-          setState(() {
-            _printerStatusText = "打印暂停";
-          });
-        }
-        break;
-      default:
-    }
+      }
+    });
   }
 
   //获取打印机状态
@@ -209,7 +232,7 @@ class _HomeState extends State<Home> {
       //绑定打印机
       var params = {
         "macAddress": _barcode.toString().split(":")[2],
-        "customerName": "test"
+        "customerName": "norman"
       };
       var res =
           await Http.post(path: bindPrint, data: params, options: options);
@@ -369,8 +392,11 @@ class _HomeState extends State<Home> {
   }
 
   //选择打印机
-  _selectPrinter(id, name) {
-    Provider.of<PrinterIdProvider>(context).getPrinterId(id); 
+  _selectPrinter(id, name, size) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt("selectedPrintId", id); // 本都存储当前选中PrinterId
+    prefs.setString("printSize", size); // 本都存储Printer电机运动范围
+    Provider.of<PrinterIdProvider>(context).getPrinterId(id);
     getPrinterInfo();
 
     if (mounted) {
@@ -462,7 +488,8 @@ class _HomeState extends State<Home> {
   Widget _popMenuList(item) {
     return InkWell(
         onTap: () {
-          _selectPrinter(item['id'], item['customerName']);
+          _selectPrinter(item['id'], item['customerName'],
+              item['parameter']['motorStroke']);
         },
         child: Container(
             width: 120.0,
@@ -540,7 +567,7 @@ class _TabBarPrintState extends State<TabBarPrint>
                           icon: Image.asset(
                             "assets/images/workspace/warm_tab.png",
                             width: ScreenUtil().setWidth(100),
-                            height: ScreenUtil().setHeight(95),
+                            height: ScreenUtil().setHeight(90),
                           ),
                           text: "喷嘴温度",
                         ),
@@ -551,7 +578,7 @@ class _TabBarPrintState extends State<TabBarPrint>
                             icon: Image.asset(
                               "assets/images/workspace/hotbed_tab.png",
                               width: ScreenUtil().setWidth(100),
-                              height: ScreenUtil().setHeight(95),
+                              height: ScreenUtil().setHeight(90),
                             ),
                             text: "热床温度",
                           )),
@@ -561,7 +588,7 @@ class _TabBarPrintState extends State<TabBarPrint>
                             icon: Image.asset(
                               "assets/images/workspace/move_shaft_tab.png",
                               width: ScreenUtil().setWidth(100),
-                              height: ScreenUtil().setHeight(95),
+                              height: ScreenUtil().setHeight(90),
                             ),
                             text: "移动轴",
                           )),
@@ -571,7 +598,7 @@ class _TabBarPrintState extends State<TabBarPrint>
                             icon: Image.asset(
                               "assets/images/workspace/material_tab.png",
                               width: ScreenUtil().setWidth(100),
-                              height: ScreenUtil().setHeight(95),
+                              height: ScreenUtil().setHeight(90),
                             ),
                             text: "耗材",
                           )),

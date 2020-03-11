@@ -12,5 +12,5 @@ const pullOut = "printer/pullOut"; //打印机退料
 const printerInfo = "printer/printerInfo"; //获取打印机详情 
 const checkModel = "printTask/checkModelSizeProgress"; //获取模型大小查询结果 
 const modelSize = "printTask/checkModelSize"; //获取模型大小 
-const sendCommand = "printer/sendCommand"; //想打印机发送命令 
-
+const sendCommand = "printer/sendCommand"; //想打印机发送命令  
+const createPrintTask = "printTask"; //创建打印任务

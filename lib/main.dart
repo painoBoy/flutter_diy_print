@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import './routes/route.dart';
 import 'package:flutter/services.dart';
-import './pages/provider/nozzle.dart';
+import './pages/provider/printerParams.dart';
 // import 'package:flutter_country_picker/flutter_country_picker.dart';
 // import 'package:international_phone_input/international_phone_input.dart';
 
