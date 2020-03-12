@@ -12,6 +12,7 @@ import './pages/provider/printerParams.dart';
 
 void main() {
   runApp(new MyApp());
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
 }
 
 final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
@@ -35,9 +36,9 @@ class MyApp extends StatelessWidget {
       title: "Lotmaxx3D",
       theme: ThemeData(
           primaryColor: Color(0xFFF79432),
-          highlightColor: Colors.transparent,
-          splashColor: Color(0xFFF79432),
-          brightness: Brightness.light),
+          // highlightColor: Colors.transparent,
+          // splashColor: Color(0xFFF79432),
+         ),
       initialRoute: '/',
       onGenerateRoute: onGenerateRoute,
     )));

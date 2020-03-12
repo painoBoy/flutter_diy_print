@@ -199,64 +199,71 @@ class _SettingPageState extends State<SettingPage> {
                 ],
               )),
         ),
-        Container(
-          margin: EdgeInsets.fromLTRB(
-              0, ScreenAdapter.height(10), ScreenAdapter.width(10), 0),
-          decoration: BoxDecoration(
-            color: Color.fromRGBO(255, 255, 255, 1),
-          ),
-          padding: EdgeInsets.fromLTRB(10, 4, 5, 2),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Icon(
-                    Icons.settings,
-                    size: ScreenAdapter.size(50),
-                    color: Colors.grey[600],
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: ScreenAdapter.width(25)),
-                    child: Text("Setting"),
-                  ),
-                ],
-              ),
-              Container(
-                child: IconButton(
-                    icon: Icon(Icons.keyboard_arrow_right), onPressed: null),
-              )
-            ],
-          ),
+        GestureDetector(
+          onTap: (){Navigator.pushNamed(context, "/setting");},
+          child: Container(
+            margin: EdgeInsets.fromLTRB(
+                0, ScreenAdapter.height(10), ScreenAdapter.width(10), 0),
+            decoration: BoxDecoration(
+              color: Color.fromRGBO(255, 255, 255, 1),
+            ),
+            padding: EdgeInsets.fromLTRB(10, 4, 5, 2),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                 Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.settings,
+                        size: ScreenAdapter.size(50),
+                        color: Colors.grey[600],
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: ScreenAdapter.width(25)),
+                        child: Text("Setting"),
+                      ),
+                    ],
+                  
+                ),
+                Container(
+                  child: IconButton(
+                      icon: Icon(Icons.keyboard_arrow_right), onPressed: null),
+                )
+              ],
+            ),
+          )
         ),
-        Container(
-          margin: EdgeInsets.fromLTRB(
-              0, ScreenAdapter.height(10), ScreenAdapter.width(10), 0),
-          decoration: BoxDecoration(
-            color: Color.fromRGBO(255, 255, 255, 1),
-          ),
-          padding: EdgeInsets.fromLTRB(10, 4, 5, 2),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Icon(
-                    Icons.help,
-                    size: ScreenAdapter.size(50),
-                    color: Color.fromRGBO(255, 105, 26, 1),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: ScreenAdapter.width(25)),
-                    child: Text("help & suggest"),
-                  ),
-                ],
-              ),
-              Container(
-                child: IconButton(
-                    icon: Icon(Icons.keyboard_arrow_right), onPressed: null),
-              )
-            ],
+        GestureDetector(
+          onTap: (){Navigator.pushNamed(context, "/help");},
+          child: Container(
+            margin: EdgeInsets.fromLTRB(
+                0, ScreenAdapter.height(10), ScreenAdapter.width(10), 0),
+            decoration: BoxDecoration(
+              color: Color.fromRGBO(255, 255, 255, 1),
+            ),
+            padding: EdgeInsets.fromLTRB(10, 4, 5, 2),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Icon(
+                      Icons.help,
+                      size: ScreenAdapter.size(50),
+                      color: Color.fromRGBO(255, 105, 26, 1),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: ScreenAdapter.width(25)),
+                      child: Text("Help & FeedBack"),
+                    ),
+                  ],
+                ),
+                Container(
+                  child: IconButton(
+                      icon: Icon(Icons.keyboard_arrow_right), onPressed: null),
+                )
+              ],
+            ),
           ),
         ),
       ],

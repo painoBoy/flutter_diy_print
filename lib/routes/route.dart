@@ -14,6 +14,8 @@ import '../pages/login/register_page.dart';
 import '../pages/account/setting_page.dart';
 import '../pages/account/collection_page.dart';
 import '../pages/account/printHistory_page.dart';
+import '../pages/account/account_setting.dart';
+import '../pages/account/help_suggest.dart';
 
 import '../pages/modelLibrary/model_detail.dart';
 import '../pages/modelLibrary/modelList_page.dart';
@@ -34,6 +36,8 @@ final routes = {
   "/modelCollect": (BuildContext context) => ModelCollectionPage(),
   "/printHistory": (BuildContext context) => PrintHistoryPage(),
   "/message": (BuildContext context) => MessageListPage(),
+  "/setting": (BuildContext context) => AccountSettingPage(),
+  "/help": (BuildContext context) => HelpSugPage(),
 
   "/scan":(BuildContext context)=> ScanWidget(),
   "/modelLib":(BuildContext context)=> ModelLibraryPage(),

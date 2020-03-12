@@ -80,8 +80,9 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
    *  step2:通过step1 response里的ID轮询查询进度
    *  step3:进度 -1 表示出错 100表示获取
    *  step4：拿到 模型x、y、z 数据 与 打印机 xyz 判断 
+   *  step5: 条件通过则创建打印任务
   */
-  _printModel(fileName) async {
+  _printModel(fileName,modelImageUrl) async {
     List modelUrlList = []; //模型下载地址
     var modelPrintId; //response id
     modelUrlList.add(
@@ -112,13 +113,10 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
             timer.cancel();
             timer = null;
           } else if (result["data"]["progress"] == 100) {
-            if (mounted)
-              setState(() {
-                isLoading = false;
-              });
             timer.cancel();
             timer = null;
             print(result["data"]["modelSizeInfos"][0]);
+            //模型大小和打印机电机运动范围比较
             SharedPreferences prefs = await SharedPreferences.getInstance();
             List tempMotorStroke = prefs.getString("printSize").split(",");
             var _newtempMotorStroke = tempMotorStroke.map((val) {
@@ -135,9 +133,42 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
               }
             }
             if (isCanPrint) {
+              Map _taskParams = {
+                "printerId": prefs.getInt("selectedPrintId"),
+                "icon": modelImageUrl == null?"null":modelImageUrl,
+                "printOverall": true,
+                "cloudPrinte": false,
+                "printModel": [
+                  {"extruder": 1, "model": modelPrintId, "scaling": -1},
+                ]
+              };
               //发起打印任务
-
+              var res = await NetRequest.post(Config.BASE_URL + createPrintTask,data: _taskParams);
+              print(res);
+              if (res["code"] == 200) {
+                  //立即开始打印任务
+                  var taskResult = await NetRequest.get(Config.BASE_URL + printTaskApi+"/${res['data']['printTaskList'][0]['taskcode']}" );
+                   if (mounted)
+                setState(() {
+                  isLoading = false;
+                });
+                  if(taskResult["code"] == 200){
+                    print(taskResult);
+                  }else{
+                     showToast(taskResult["msg"],
+                  backgroundColor: Colors.grey[600]);
+                  }
+                // print("成功");
+              } else {
+                showToast(res["msg"],
+                    position: ToastPosition.bottom,
+                    backgroundColor: Colors.grey[600]);
+              }
             } else {
+              if (mounted)
+                setState(() {
+                  isLoading = false;
+                });
               showToast("The Model size is too large",
                   backgroundColor: Colors.grey[600]);
             }
@@ -154,9 +185,9 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
   }
 
   //发起打印机任务
-  startPrintTask() async {
-    var res = await NetRequest.post(Config.BASE_URL + createPrintTask);
-  }
+  // startPrintTask() async {
+  //   var res = await NetRequest.post(Config.BASE_URL + printTaskApi);
+  // }
 
   //收藏
   _collection() async {
@@ -238,7 +269,7 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
           ),
           body: _modelData != null
               ? ListView(
-                  // physics: NeverScrollableScrollPhysics(), 
+                  // physics: NeverScrollableScrollPhysics(),
                   children: <Widget>[
                     Stack(
                       children: <Widget>[
@@ -382,7 +413,7 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
             ),
             GestureDetector(
               onTap: () {
-                _printModel(_modelData['files']['items'][index]['filename']);
+                _printModel(_modelData['files']['items'][index]['filename'],_modelData['files']['items'][index]['thumbnail_url']);
               },
               child: Container(
                 padding: EdgeInsets.fromLTRB(20, 8, 20, 8),

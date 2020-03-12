@@ -44,7 +44,7 @@ class _HomeState extends State<Home> {
   bool isbindPirnt = false;
   List _printerList = []; //绑定用户打印机列表
   int _currentPrinterId; // 当前选中打印机id
-  String _printerStatusText = "打印机离线";
+  String _printerStatusText = "Printer is not connected";
 
   Timer _timer; //轮询查询打印机状态
 
@@ -90,8 +90,10 @@ class _HomeState extends State<Home> {
           //如果未选择过就默认索引为1的打印机id
           Provider.of<PrinterIdProvider>(context)
               .getPrinterId(res['data'][0]["id"]);
-          prefs.setString( //如果未选择 就默认本地存储
-              "printSize", res['data'][0]["parameter"]["motorStroke"]);
+          prefs.setString(
+              //如果未选择 就默认本地存储
+              "printSize",
+              res['data'][0]["parameter"]["motorStroke"]);
           if (mounted)
             setState(() {
               _printerList = res['data'];
@@ -134,35 +136,35 @@ class _HomeState extends State<Home> {
           case 0:
             if (mounted) {
               setState(() {
-                _printerStatusText = "打印机离线";
+                _printerStatusText = "The printer is not connected";
               });
             }
             break;
           case 1:
             if (mounted) {
               setState(() {
-                _printerStatusText = "已连接";
+                _printerStatusText = "The printer is connected";
               });
             }
             break;
           case 2:
             if (mounted) {
               setState(() {
-                _printerStatusText = "打印准备中";
+                _printerStatusText = "Printing in progress...";
               });
             }
             break;
           case 3:
             if (mounted) {
               setState(() {
-                _printerStatusText = "打印中";
+                _printerStatusText = "Printing...";
               });
             }
             break;
           case 4:
             if (mounted) {
               setState(() {
-                _printerStatusText = "打印暂停";
+                _printerStatusText = "Temporarily stop Printing";
               });
             }
             break;
@@ -279,7 +281,7 @@ class _HomeState extends State<Home> {
           // ),
           // backgroundColor: Colors.white,
           title: Text(
-            "工作台",
+            "WorkSpace",
             style: TextStyle(color: Colors.white),
           ),
           centerTitle: true,
@@ -362,10 +364,10 @@ class _HomeState extends State<Home> {
             ),
             margin: EdgeInsets.only(top: ScreenUtil().setHeight(80)),
             padding: EdgeInsets.fromLTRB(5, 5, 10, 5),
-            child: Text("打印机状态",
+            child: Text("Printer status",
                 textAlign: TextAlign.right,
                 style: TextStyle(
-                    fontSize: ScreenUtil().setSp(30),
+                    fontSize: ScreenUtil().setSp(25),
                     fontWeight: FontWeight.bold)),
           ),
           SizedBox(
@@ -455,9 +457,9 @@ class _HomeState extends State<Home> {
                         topLeft: Radius.circular(8.0),
                         topRight: Radius.circular(8.0)),
                   ),
-                  icon: Icon(Icons.add_circle),
+                  icon: Icon(Icons.add_circle_outline),
                   label: Text(
-                    "添加打印机",
+                    "Add Printer",
                     style: TextStyle(
                       fontSize: 10,
                     ),
@@ -502,7 +504,7 @@ class _HomeState extends State<Home> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
-                Icon(Icons.local_printshop),
+                Icon(Icons.print),
                 Text(
                   "${item['customerName']}",
                   style: TextStyle(fontSize: 10),
