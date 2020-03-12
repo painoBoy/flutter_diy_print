@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-01-18 15:16:33
- * @LastEditTime: 2020-02-20 16:29:48
+ * @LastEditTime: 2020-03-12 17:32:23
  * @LastEditors: Please set LastEditors
  * @Description: 耗材操作面板
  * @FilePath: /diy_3d_print/lib/pages/workspace/material_chenl.dart
@@ -9,6 +9,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:oktoast/oktoast.dart';
+import 'package:provider/provider.dart';
+import '../provider/printCommand.dart';
+import '../../network/api.dart';
+import '../../network/http_config.dart';
+import '../../network/http_request.dart';
 import 'dart:io';
 
 //进退料
@@ -18,8 +24,11 @@ class MaterialPanel extends StatefulWidget {
 }
 
 class _MaterialPanelState extends State<MaterialPanel> {
+  bool isShowLoading = false;
+
   _materialIn(context, type) async {
-    if (type == 0) { //0 进料 1 退料
+    if (type == 0) {
+      //0 进料 1 退料
       if (Platform.isIOS) {
         var res = await showDialog(
           context: context,
@@ -38,6 +47,7 @@ class _MaterialPanelState extends State<MaterialPanel> {
                 CupertinoDialogAction(
                   child: Text('确定'),
                   onPressed: () {
+                    materailIn();
                     Navigator.of(context).pop("1");
                   },
                 ),
@@ -75,6 +85,7 @@ class _MaterialPanelState extends State<MaterialPanel> {
                   FlatButton(
                     child: Text('确定'),
                     onPressed: () {
+                      materailIn();
                       Navigator.of(context).pop("1");
                     },
                   ),
@@ -102,6 +113,7 @@ class _MaterialPanelState extends State<MaterialPanel> {
                 CupertinoDialogAction(
                   child: Text('确定'),
                   onPressed: () {
+                    materailOut();
                     Navigator.of(context).pop("1");
                   },
                 ),
@@ -133,6 +145,7 @@ class _MaterialPanelState extends State<MaterialPanel> {
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                     onPressed: () {
+                      materailOut();
                       Navigator.of(context).pop("0");
                     },
                   ),
@@ -149,18 +162,93 @@ class _MaterialPanelState extends State<MaterialPanel> {
     }
   }
 
+  //打印机出料
+  materailOut() async {
+    if (mounted)
+      setState(() {
+        isShowLoading = true;
+      });
+    Map params = {
+      "enderIds": [0],
+      "printerId": Provider.of<PrinterIdProvider>(context).printId
+    };
+    var res = await NetRequest.post(Config.BASE_URL + pullOut, data: params);
+    if (mounted)
+      setState(() {
+        isShowLoading = false;
+      });
+    if (res["code"] == 200) {
+      print(res);
+      showToast("Successful operation",
+          position: ToastPosition.bottom, backgroundColor: Colors.grey[500]);
+    } else {
+      showToast(res["msg"],
+          position: ToastPosition.bottom, backgroundColor: Colors.grey[500]);
+    }
+  }
+
+  //打印机进料
+  materailIn() async {
+    if (mounted)
+      setState(() {
+        isShowLoading = true;
+      });
+    Map params = {
+      "enderIds": [0],
+      "printerId": Provider.of<PrinterIdProvider>(context).printId
+    };
+    var res = await NetRequest.post(Config.BASE_URL + pullIn, data: params);
+    if (mounted)
+      setState(() {
+        isShowLoading = false;
+      });
+    if (res["code"] == 200) {
+      print(res);
+      showToast("Successful operation",
+          position: ToastPosition.bottom, backgroundColor: Colors.grey[500]);
+    } else {
+      showToast(res["msg"],
+          position: ToastPosition.bottom, backgroundColor: Colors.grey[500]);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.fromLTRB(5, 15, 5, 10),
       width: ScreenUtil().width,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          _item("进料", "assets/images/workspace/material_in.png", context,0),
-          _item("退料", "assets/images/workspace/material_out.png", context,1),
-        ],
-      ),
+      child: isShowLoading
+          ? Stack(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    _item("进料", "assets/images/workspace/material_in.png",
+                        context, 0),
+                    _item("退料", "assets/images/workspace/material_out.png",
+                        context, 1),
+                  ],
+                ),
+                // Positioned(
+                //   left: ScreenUtil().width / 2 ,
+                //   top:50,
+                //   child: CupertinoActivityIndicator())
+                Container(
+                  margin: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 2  - 15, 50, 0, 0),
+
+                  child: CupertinoActivityIndicator(),
+                )
+              ],
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                _item("进料", "assets/images/workspace/material_in.png", context,
+                    0),
+                _item("退料", "assets/images/workspace/material_out.png", context,
+                    1),
+              ],
+            ),
     );
   }
 

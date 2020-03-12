@@ -49,6 +49,34 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
   //退出登录
   _signOut() async {
     if (Platform.isIOS) {
+      await showDialog(
+          context: context,
+          barrierDismissible: false, // user must tap button!
+          builder: (BuildContext context) {
+            return CupertinoAlertDialog(
+              title: Text('Are you sure you want to log out ?'),
+              content: Text(''),
+              actions: <Widget>[
+                CupertinoDialogAction(
+                  child: Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop("0");
+                  },
+                ),
+                CupertinoDialogAction(
+                  child: Text('OK'),
+                  onPressed: () async{
+                    var res = await NetRequest.get(Config.BASE_URL + logout);
+                    if (res["code"] == 200) {
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, "/", (Route<dynamic> route) => false);
+                    }
+                  },
+                ),
+              ],
+            );
+          },
+        );
     } else if (Platform.isAndroid) {
       await showDialog(
           context: context,

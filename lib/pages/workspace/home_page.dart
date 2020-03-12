@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-19 14:50:07
- * @LastEditTime: 2020-03-06 17:18:58
+ * @LastEditTime: 2020-03-12 17:01:39
  * @LastEditors: Please set LastEditors
  * @Description: 打印首页
  * @FilePath: /diy_3d_print/lib/pages/home_page.dart
@@ -44,7 +44,7 @@ class _HomeState extends State<Home> {
   bool isbindPirnt = false;
   List _printerList = []; //绑定用户打印机列表
   int _currentPrinterId; // 当前选中打印机id
-  String _printerStatusText = "Printer is not connected";
+  String _printerStatusText = "not connected";
 
   Timer _timer; //轮询查询打印机状态
 
@@ -136,14 +136,14 @@ class _HomeState extends State<Home> {
           case 0:
             if (mounted) {
               setState(() {
-                _printerStatusText = "The printer is not connected";
+                _printerStatusText = "not connected";
               });
             }
             break;
           case 1:
             if (mounted) {
               setState(() {
-                _printerStatusText = "The printer is connected";
+                _printerStatusText = "connected";
               });
             }
             break;
@@ -384,8 +384,10 @@ class _HomeState extends State<Home> {
             ),
             Text(
               _printerStatusText,
+              maxLines: 2,
               style: TextStyle(
                   color: Colors.grey[700], fontSize: ScreenAdapter.size(20)),
+              overflow: TextOverflow.ellipsis,
             ),
           ])
         ],

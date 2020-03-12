@@ -1,13 +1,14 @@
 /*
  * @Author: liaozhou
  * @Date: 2020-01-18 13:37:23
- * @LastEditTime: 2020-03-04 15:00:28
+ * @LastEditTime: 2020-03-12 17:07:41
  * @LastEditors: Please set LastEditors
  * @Description: 喷嘴温度操作面板widget
  * @FilePath: /diy_3d_print/lib/pages/workspace/nozzle.dart
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../../network/http_config.dart';
 import '../../network/http_request.dart';
 import '../../network/api.dart';
@@ -25,9 +26,14 @@ class NozzleWidget extends StatefulWidget {
 
 class _NozzleWidgetState extends State<NozzleWidget> {
   double _progress = 0;
+  bool isShowLoading = false;
 
   //设置喷嘴温度
   _setPrinerNozzleWarm() async {
+    if (mounted)
+      setState(() {
+        isShowLoading = true;
+      });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     print(prefs.getString("userId"));
     Map params = {
@@ -37,10 +43,16 @@ class _NozzleWidgetState extends State<NozzleWidget> {
     };
     var res =
         await NetRequest.post(Config.BASE_URL + sendCommand, data: params);
-    if(res["code"] == 200){
-      showToast("Set up successfully",position: ToastPosition.bottom,backgroundColor: Colors.grey[400]);
-    }else{
-      showToast(res["msg"],position: ToastPosition.bottom,backgroundColor: Colors.grey[400]);
+    if (mounted)
+      setState(() {
+        isShowLoading = false;
+      });
+    if (res["code"] == 200) {
+      showToast("Set up successfully",
+          position: ToastPosition.bottom, backgroundColor: Colors.grey[400]);
+    } else {
+      showToast(res["msg"],
+          position: ToastPosition.bottom, backgroundColor: Colors.grey[400]);
     }
   }
 
@@ -56,6 +68,7 @@ class _NozzleWidgetState extends State<NozzleWidget> {
           _operationPanelTilte(), //title
           _operationPanel(), //热床操作面板
           _okBtn(),
+          isShowLoading ? CupertinoActivityIndicator() : Text(""),
         ],
       ),
     );
@@ -104,11 +117,11 @@ class _NozzleWidgetState extends State<NozzleWidget> {
       ),
     );
   }
-  
+
   Widget _okBtn() {
     return Container(
       child: GestureDetector(
-        onTap: _setPrinerNozzleWarm, 
+        onTap: _setPrinerNozzleWarm,
         child: Image.asset(
           "assets/images/workspace/okBtn.png",
           width: ScreenUtil().setWidth(100),
