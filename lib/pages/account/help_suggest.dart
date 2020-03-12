@@ -71,11 +71,11 @@ class HelpSugPage extends StatelessWidget {
             decoration: BoxDecoration(color: Colors.white),
             padding: EdgeInsets.all(5),
             child: TextField(
-              controller: _feedbackController,
+              controller: _mailController,
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.all(10),
                 border: InputBorder.none,
-                hintText: "Plsease enter your phone or Email",
+                hintText: "Please enter your phone or Email",
                 hintStyle: TextStyle(color: Colors.grey[400]),
               ),
               style: TextStyle(color: Colors.grey[600]),
