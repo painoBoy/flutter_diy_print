@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import '../../utils/Storage.dart';
 import 'dart:convert';
 
+
 class SettingPage extends StatefulWidget {
   @override
   _SettingPageState createState() => _SettingPageState();
@@ -22,6 +23,8 @@ class _SettingPageState extends State<SettingPage> {
   getUserInfo() async {
     _userInfo = json.decode(await Storage.getString("userInfo"));
   }
+
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -200,18 +203,20 @@ class _SettingPageState extends State<SettingPage> {
               )),
         ),
         GestureDetector(
-          onTap: (){Navigator.pushNamed(context, "/setting");},
-          child: Container(
-            margin: EdgeInsets.fromLTRB(
-                0, ScreenAdapter.height(10), ScreenAdapter.width(10), 0),
-            decoration: BoxDecoration(
-              color: Color.fromRGBO(255, 255, 255, 1),
-            ),
-            padding: EdgeInsets.fromLTRB(10, 4, 5, 2),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                 Row(
+            onTap: () {
+              Navigator.pushNamed(context, "/setting");
+            },
+            child: Container(
+              margin: EdgeInsets.fromLTRB(
+                  0, ScreenAdapter.height(10), ScreenAdapter.width(10), 0),
+              decoration: BoxDecoration(
+                color: Color.fromRGBO(255, 255, 255, 1),
+              ),
+              padding: EdgeInsets.fromLTRB(10, 4, 5, 2),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Row(
                     children: <Widget>[
                       Icon(
                         Icons.settings,
@@ -223,18 +228,19 @@ class _SettingPageState extends State<SettingPage> {
                         child: Text("Setting"),
                       ),
                     ],
-                  
-                ),
-                Container(
-                  child: IconButton(
-                      icon: Icon(Icons.keyboard_arrow_right), onPressed: null),
-                )
-              ],
-            ),
-          )
-        ),
+                  ),
+                  Container(
+                    child: IconButton(
+                        icon: Icon(Icons.keyboard_arrow_right),
+                        onPressed: null),
+                  )
+                ],
+              ),
+            )),
         GestureDetector(
-          onTap: (){Navigator.pushNamed(context, "/help");},
+          onTap: () {
+            Navigator.pushNamed(context, "/help");
+          },
           child: Container(
             margin: EdgeInsets.fromLTRB(
                 0, ScreenAdapter.height(10), ScreenAdapter.width(10), 0),

@@ -24,19 +24,21 @@ void main() {
 
   // print(model);
 
-  List strList = [150.0, 150.0, 150.0];
-  List strList2 = [119.72801208496094, 205.63400268554688, 10];
-  bool flag = false;
-  for( int i = 0;i < strList.length;i++){
-    // print("${strList[i]}?${strList2[i]}");
-    // print(strList[i]>strList2[i]);
-    if(strList[i] >strList2[i] ){
+  // List strList = [150.0, 150.0, 150.0];
+  // List strList2 = [119.72801208496094, 205.63400268554688, 10];
+  // bool flag = false;
+  // for( int i = 0;i < strList.length;i++){
+  //   // print("${strList[i]}?${strList2[i]}");
+  //   // print(strList[i]>strList2[i]);
+  //   if(strList[i] >strList2[i] ){
 
-      flag = false;
-      break;
-    }else{
-      flag = true;
-    }
-  }
-  print("?${flag}");
+  //     flag = false;
+  //     break;
+  //   }else{
+  //     flag = true;
+  //   }
+  // }
+  // print("?${flag}");
+  String _pageSize = "1";
+    print( (int.parse(_pageSize) + 1).toString());
 }

@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import './routes/route.dart';
 import 'package:flutter/services.dart';
 import './pages/provider/printerParams.dart';
+import './pages/provider/printTaskList.dart';
 // import 'package:flutter_country_picker/flutter_country_picker.dart';
 // import 'package:international_phone_input/international_phone_input.dart';
 
@@ -26,21 +27,20 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider(builder: (_) => Counter()),
           ChangeNotifierProvider(builder: (_) => NozzleWarm()),
           ChangeNotifierProvider(builder: (_) => PrinterIdProvider()),
+          ChangeNotifierProvider(builder: (_) => PrintTaskProvider()),
         ],
-        child:
-        OKToast(
+        child: OKToast(
             child: MaterialApp(
-      debugShowCheckedModeBanner: false,
-      navigatorKey: navigatorKey,
-
-      title: "Lotmaxx3D",
-      theme: ThemeData(
-          primaryColor: Color(0xFFF79432),
-          // highlightColor: Colors.transparent,
-          // splashColor: Color(0xFFF79432),
-         ),
-      initialRoute: '/',
-      onGenerateRoute: onGenerateRoute,
-    )));
+          debugShowCheckedModeBanner: false,
+          navigatorKey: navigatorKey,
+          title: "Lotmaxx3D",
+          theme: ThemeData(
+            primaryColor: Color(0xFFF79432),
+            // highlightColor: Colors.transparent,
+            // splashColor: Color(0xFFF79432),
+          ),
+          initialRoute: '/',
+          onGenerateRoute: onGenerateRoute,
+        )));
   }
 }

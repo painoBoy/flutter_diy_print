@@ -10,46 +10,112 @@
 import '../../utils/ScreenAdapter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import '../../utils//ScreenAdapter.dart';
+import 'package:provider/provider.dart';
+import '../provider/printTaskList.dart';
+import '../../network/http_config.dart';
+import '../../network/api.dart';
+import '../../network/http_request.dart';
+import 'package:oktoast/oktoast.dart';
+import 'package:flutter_easyrefresh/delivery_header.dart';
+import 'package:flutter_easyrefresh/easy_refresh.dart';
 
-class PrintHistoryPage extends StatelessWidget {
+class PrintHistoryPage extends StatefulWidget {
+  @override
+  _PrintHistoryPageState createState() => _PrintHistoryPageState();
+}
+
+class _PrintHistoryPageState extends State<PrintHistoryPage> {
+  int _page = 1;
+  int _pageSize = 10;
+  List _printStatusList = [
+    "All",
+    "Waiting to print",
+    "Printing...",
+    "Print successfully",
+    "Printing failed",
+    "Printing in progress",
+    "Offline during printing",
+    "Pause printing",
+  ];
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getPrintTaskList();
+  }
+
+  //获取用户所有打印任务
+  getPrintTaskList() async {
+    var res = await NetRequest.get(
+        Config.BASE_URL + userTaskList + "/${_pageSize}/${_page}/0");
+    if (res["code"] == 200) {
+      Provider.of<PrintTaskProvider>(context).getUserPrintTaskList(res["data"]);
+    } else {
+      showToast(res["msg"],
+          position: ToastPosition.bottom, backgroundColor: Colors.green[400]);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    List _printTaskData = Provider.of<PrintTaskProvider>(context).taskList;
     ScreenAdapter.init(context);
     return AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
-        child: Scaffold(
-            appBar: AppBar(
-              leading: IconButton(
-                  icon: Icon(Icons.keyboard_arrow_left,
-                      color: Colors.white, size: ScreenAdapter.size(80)),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  }),
-              brightness: Brightness.light,
-              title: Text(
-                "Print History",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            body: ListView(
-              children: <Widget>[
-                _collectList(),
-              ],
-            )));
+        child: WillPopScope(
+            onWillPop: () {
+              Provider.of<PrintTaskProvider>(context).clearUserPrintTaskList();
+              Navigator.pop(context);
+            },
+            child: Scaffold(
+                appBar: AppBar(
+                  centerTitle: true,
+                  leading: IconButton(
+                      icon: Icon(Icons.keyboard_arrow_left,
+                          color: Colors.white, size: ScreenAdapter.size(80)),
+                      onPressed: () {
+                        Provider.of<PrintTaskProvider>(context)
+                            .clearUserPrintTaskList();
+                        Navigator.pop(context);
+                      }),
+                  brightness: Brightness.light,
+                  title: Text(
+                    "Print History",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                body: _printTaskData.length != 0
+                    ? EasyRefresh.custom(
+                        header: DeliveryHeader(
+                          backgroundColor: Colors.grey[100],
+                        ),
+                        onRefresh: () async {
+                          _page = 1;
+                          Provider.of<PrintTaskProvider>(context)
+                              .clearUserPrintTaskList();
+                          await getPrintTaskList();
+                        },
+                        onLoad: () async {
+                          _page = _page + 1;
+                          await getPrintTaskList();
+                        },
+                        slivers: <Widget>[
+                          SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                return _collectList(index);
+                              },
+                              childCount: _printTaskData.length,
+                            ),
+                          ),
+                        ],
+                      )
+                    : Container(child: Text("无数据")))));
   }
 
-  Widget _collectList() {
+  Widget _collectList(index) {
     return Container(
       padding: EdgeInsets.only(bottom: ScreenAdapter.height(0)),
-      // decoration: BoxDecoration(
-      //  border: Border(
-      //    bottom: BorderSide(
-      //      width: ScreenAdapter.width(2),
-      //      color: Colors.grey[300],
-      //    ),
-      //  )
-      // ),
       child: Card(
           child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -57,18 +123,31 @@ class PrintHistoryPage extends StatelessWidget {
           Container(
             width: ScreenAdapter.width(220),
             height: ScreenAdapter.height(140),
-            color: Colors.grey,
+            // color: Colors.grey,
+            child: Provider.of<PrintTaskProvider>(context).taskList[index]
+                        ["modelIcon"] ==
+                    ""
+                ? Center(child: Text("No Pic Data"))
+                : Image.network(
+                    "${Provider.of<PrintTaskProvider>(context).taskList[index]["modelIcon"]}",
+                    fit: BoxFit.fill),
           ),
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Container(
-                child: Text("wiget's name",
+                child: Text("print status:",
                     style: TextStyle(
-                        fontSize: ScreenAdapter.size(40),
+                        fontSize: ScreenAdapter.size(30),
                         fontWeight: FontWeight.bold)),
               ),
               Container(
-                child: Text("收藏日期: 2018-12-03"),
+                child: Text(
+                  _printStatusList[Provider.of<PrintTaskProvider>(context)
+                      .taskList[index]['printstate']],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),

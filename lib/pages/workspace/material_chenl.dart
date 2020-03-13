@@ -145,13 +145,13 @@ class _MaterialPanelState extends State<MaterialPanel> {
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                     onPressed: () {
-                      materailOut();
                       Navigator.of(context).pop("0");
                     },
                   ),
                   FlatButton(
                     child: Text('确定'),
                     onPressed: () {
+                      materailOut();
                       Navigator.of(context).pop("1");
                     },
                   ),

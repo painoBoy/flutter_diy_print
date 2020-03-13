@@ -10,6 +10,9 @@ import 'package:oktoast/oktoast.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter/services.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:provider/provider.dart';
+import '../provider/printCommand.dart';
+import '../../widget/loading.dart';
 
 class ModelDetailPage extends StatefulWidget {
   final Map arguments;
@@ -82,16 +85,29 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
    *  step4：拿到 模型x、y、z 数据 与 打印机 xyz 判断 
    *  step5: 条件通过则创建打印任务
   */
-  _printModel(fileName,modelImageUrl) async {
+  _printModel(fileName, modelImageUrl) async {
+    if (mounted)
+      setState(() {
+        isLoading = true;
+      });
+      //判断打印机状态 为1时才能打印
+    var printInfoResult = await NetRequest.get(Config.BASE_URL +
+        printerInfo +
+        "/${Provider.of<PrinterIdProvider>(context).printId}");
+    if (printInfoResult["data"]["printState"] != 1) {
+      setState(() {
+        isLoading = false;
+      });
+      showToast("Printer is not idle",
+          position: ToastPosition.bottom, backgroundColor: Colors.grey[400]);
+      return;
+    }
     List modelUrlList = []; //模型下载地址
     var modelPrintId; //response id
     modelUrlList.add(
         "https://www.myminifactory.com/download/${widget.arguments['objId']}?downloadfile=${fileName}");
     print(Config.BASE_URL + modelSize);
-    if (mounted)
-      setState(() {
-        isLoading = true;
-      });
+
     var res =
         await NetRequest.post(Config.BASE_URL + modelSize, data: modelUrlList);
     if (res["code"] == 200) {
@@ -109,7 +125,9 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
               setState(() {
                 isLoading = false;
               });
-            print("系统出错");
+            showToast("system error",
+                position: ToastPosition.bottom,
+                backgroundColor: Colors.grey[400]);
             timer.cancel();
             timer = null;
           } else if (result["data"]["progress"] == 100) {
@@ -135,7 +153,7 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
             if (isCanPrint) {
               Map _taskParams = {
                 "printerId": prefs.getInt("selectedPrintId"),
-                "icon": modelImageUrl == null?"null":modelImageUrl,
+                "icon": modelImageUrl == null ? "null" : modelImageUrl,
                 "printOverall": true,
                 "cloudPrinte": false,
                 "printModel": [
@@ -143,22 +161,38 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
                 ]
               };
               //发起打印任务
-              var res = await NetRequest.post(Config.BASE_URL + createPrintTask,data: _taskParams);
+              var res = await NetRequest.post(Config.BASE_URL + createPrintTask,
+                  data: _taskParams);
               print(res);
-              if (res["code"] == 200) {
-                  //立即开始打印任务
-                  var taskResult = await NetRequest.get(Config.BASE_URL + printTaskApi+"/${res['data']['printTaskList'][0]['taskcode']}" );
-                   if (mounted)
+              if (mounted)
                 setState(() {
                   isLoading = false;
                 });
-                  if(taskResult["code"] == 200){
-                    print(taskResult);
-                  }else{
-                     showToast(taskResult["msg"],
-                  backgroundColor: Colors.grey[600]);
-                  }
-                // print("成功");
+              // if (res["code"] == 200) {
+              //   //立即开始打印任务
+              //   var taskResult = await NetRequest.get(Config.BASE_URL +
+              //       printTaskApi +
+              //       "/${res['data']['printTaskList'][0]['taskcode']}");
+              //   if (mounted)
+              //     setState(() {
+              //       isLoading = false;
+              //     });
+              //   if (taskResult["code"] == 200) {
+              //     print(taskResult);
+              //   } else {
+              //     showToast(taskResult["msg"],
+              //         backgroundColor: Colors.grey[600]);
+              //   }
+              //   // print("成功");
+              // } else {
+              //   showToast(res["msg"],
+              //       position: ToastPosition.bottom,
+              //       backgroundColor: Colors.grey[600]);
+              // }
+              if (res["code"] == 200) {
+                showToast("Start printing...",
+                    position: ToastPosition.bottom,
+                    backgroundColor: Colors.grey[600]);
               } else {
                 showToast(res["msg"],
                     position: ToastPosition.bottom,
@@ -268,40 +302,12 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
             ],
           ),
           body: _modelData != null
-              ? ListView(
-                  // physics: NeverScrollableScrollPhysics(),
-                  children: <Widget>[
-                    Stack(
-                      children: <Widget>[
-                        _banner(),
-                        isLoading
-                            ? Positioned(
-                                top: ScreenAdapter.getScreenHeight() / 2 - 50,
-                                left: ScreenAdapter.getScreenWidth() / 2 - 50,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      // color: Colors.white
-                                      ),
-                                  child: Column(
-                                    children: <Widget>[
-                                      SpinKitCircle(
-                                        color: Color(0xFFF79432),
-                                        size: 50.0,
-                                      ),
-                                      Text(
-                                        "Model is downloading...",
-                                        style:
-                                            TextStyle(color: Colors.grey[600]),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              )
-                            : Text("")
-                      ],
-                    )
-                  ],
-                )
+              ? ProgressDialog(
+                  loading: isLoading,
+                  msg: 'Model is Downloading...',
+                  child: ListView(children: <Widget>[_banner()]
+                      // physics: NeverScrollableScrollPhysics(),
+                      ))
               : SpinKitWave(
                   color: Color(0xFFF79432),
                   size: 20.0,
@@ -413,7 +419,8 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
             ),
             GestureDetector(
               onTap: () {
-                _printModel(_modelData['files']['items'][index]['filename'],_modelData['files']['items'][index]['thumbnail_url']);
+                _printModel(_modelData['files']['items'][index]['filename'],
+                    _modelData['files']['items'][index]['thumbnail_url']);
               },
               child: Container(
                 padding: EdgeInsets.fromLTRB(20, 8, 20, 8),
