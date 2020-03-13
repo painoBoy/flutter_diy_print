@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 // import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:convert';
 import '../../utils/Storage.dart';
@@ -17,6 +18,9 @@ class LogPage extends StatefulWidget {
 }
 
 class _LogPageState extends State<LogPage> {
+  Map userProfile;
+  bool _isFaceBookLogin = false;
+  final facebookLogin = FacebookLogin();
   bool isShowLoading = false;
   var _userNameController = TextEditingController();
   var _passWordController = TextEditingController();
@@ -72,12 +76,48 @@ class _LogPageState extends State<LogPage> {
     }
   }
 
+  //FaceBook 登陆
+   _loginWithFB() async {
+    print("点击login");
+    final result = await facebookLogin.logInWithReadPermissions(['email']);
+
+    switch (result.status) {
+      case FacebookLoginStatus.loggedIn:
+        final token = result.accessToken.token;
+        Dio dio = Dio();
+        final graphResponse = await dio.get('https://graph.facebook.com/v2.12/me?fields=name,picture,email&access_token=${token}');
+        final profile = json.decode(graphResponse.data);
+        print(profile);
+        setState(() {
+          userProfile = profile;
+          _isFaceBookLogin = true;
+        });
+        break;
+
+      case FacebookLoginStatus.cancelledByUser:
+        setState(() => _isFaceBookLogin = false);
+        break;
+      case FacebookLoginStatus.error:
+        setState(() => _isFaceBookLogin = false);
+        break;
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+        // checkLoginInfo();
+  }
+
+  //判断本地是否有登录信息
+  checkLoginInfo() async{
+    var _jession = await Storage.getString("JSESSIONID");
+    if(_jession != null){
+      Navigator.pushReplacementNamed(context, "/tabs");
+    } 
   }
 
   @override
@@ -318,19 +358,22 @@ class _LogPageState extends State<LogPage> {
                                   Text("Twitter")
                                 ],
                               )),
-                              Container(
-                                child: Column(
-                                  children: <Widget>[
-                                    Image.asset(
-                                      "assets/images/login_image/facebook_icon.png",
-                                      width: 40,
-                                      height: 40,
-                                    ),
-                                    SizedBox(
-                                      height: 8,
-                                    ),
-                                    Text("Facebook")
-                                  ],
+                              GestureDetector(
+                                onTap: _loginWithFB,
+                                child: Container(
+                                  child: Column(
+                                    children: <Widget>[
+                                      Image.asset(
+                                        "assets/images/login_image/facebook_icon.png",
+                                        width: 40,
+                                        height: 40,
+                                      ),
+                                      SizedBox(
+                                        height: 8,
+                                      ),
+                                      Text("Facebook")
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],

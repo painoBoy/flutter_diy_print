@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-01-18 15:16:33
- * @LastEditTime: 2020-03-12 17:32:23
+ * @LastEditTime: 2020-03-13 23:11:39
  * @LastEditors: Please set LastEditors
  * @Description: 耗材操作面板
  * @FilePath: /diy_3d_print/lib/pages/workspace/material_chenl.dart
@@ -220,35 +220,39 @@ class _MaterialPanelState extends State<MaterialPanel> {
       child: isShowLoading
           ? Stack(
               children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    _item("进料", "assets/images/workspace/material_in.png",
-                        context, 0),
-                    _item("退料", "assets/images/workspace/material_out.png",
-                        context, 1),
-                  ],
-                ),
+                Container(
+                    color: Colors.white,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: <Widget>[
+                        _item("进料", "assets/images/workspace/material_in.png",
+                            context, 0),
+                        _item("退料", "assets/images/workspace/material_out.png",
+                            context, 1),
+                      ],
+                    )),
                 // Positioned(
                 //   left: ScreenUtil().width / 2 ,
                 //   top:50,
                 //   child: CupertinoActivityIndicator())
                 Container(
-                  margin: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 2  - 15, 50, 0, 0),
-
+                  margin: EdgeInsets.fromLTRB(
+                      MediaQuery.of(context).size.width / 2 - 15, 50, 0, 0),
                   child: CupertinoActivityIndicator(),
                 )
               ],
             )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                _item("进料", "assets/images/workspace/material_in.png", context,
-                    0),
-                _item("退料", "assets/images/workspace/material_out.png", context,
-                    1),
-              ],
-            ),
+          : Container(
+              color: Colors.white,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  _item("进料", "assets/images/workspace/material_in.png",
+                      context, 0),
+                  _item("退料", "assets/images/workspace/material_out.png",
+                      context, 1),
+                ],
+              )),
     );
   }
 
@@ -261,27 +265,33 @@ class _MaterialPanelState extends State<MaterialPanel> {
   ) {
     return Material(
       child: Container(
-        color: Colors.white,
-        margin: EdgeInsets.only(left: 10),
-        width: ScreenUtil().setWidth(330),
-        height: ScreenUtil().setHeight(500),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text("$name"),
-            InkWell(
-              onTap: () {
-                _materialIn(context, type);
-              },
-              child: Image.asset(
-                url,
-                width: ScreenUtil().setWidth(120),
-                height: ScreenUtil().setHeight(120),
-              ),
-            )
-          ],
-        ),
-      ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+          ),
+          width: ScreenUtil().setWidth(220),
+          height: ScreenUtil().setWidth(220),
+          child: InkWell(
+            onTap: () {
+              _materialIn(context, type);
+            },
+            child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(width: 3, color: Colors.grey[800]),
+                  borderRadius:
+                      BorderRadius.circular(ScreenUtil().setWidth(330)),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text("$name"),
+                    Image.asset(
+                      url,
+                      width: ScreenUtil().setWidth(120),
+                      height: ScreenUtil().setHeight(120),
+                    ),
+                  ],
+                )),
+          )),
     );
   }
 }

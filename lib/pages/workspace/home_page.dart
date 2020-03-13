@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-19 14:50:07
- * @LastEditTime: 2020-03-12 17:01:39
+ * @LastEditTime: 2020-03-13 23:24:34
  * @LastEditors: Please set LastEditors
  * @Description: 打印首页
  * @FilePath: /diy_3d_print/lib/pages/home_page.dart
@@ -45,7 +45,7 @@ class _HomeState extends State<Home> {
   List _printerList = []; //绑定用户打印机列表
   int _currentPrinterId; // 当前选中打印机id
   String _printerStatusText = "not connected";
-
+  String _printerStatusIcon ="assets/images/workspace/green_icon.png";
   Timer _timer; //轮询查询打印机状态
 
   @override
@@ -136,6 +136,7 @@ class _HomeState extends State<Home> {
           case 0:
             if (mounted) {
               setState(() {
+                _printerStatusIcon = "assets/images/workspace/unselect_icon.png";
                 _printerStatusText = "not connected";
               });
             }
@@ -143,6 +144,7 @@ class _HomeState extends State<Home> {
           case 1:
             if (mounted) {
               setState(() {
+                _printerStatusIcon ="assets/images/workspace/green_icon.png";
                 _printerStatusText = "connected";
               });
             }
@@ -150,6 +152,7 @@ class _HomeState extends State<Home> {
           case 2:
             if (mounted) {
               setState(() {
+                _printerStatusIcon ="assets/images/workspace/green_icon.png";
                 _printerStatusText = "Printing in progress...";
               });
             }
@@ -157,6 +160,7 @@ class _HomeState extends State<Home> {
           case 3:
             if (mounted) {
               setState(() {
+                _printerStatusIcon ="assets/images/workspace/green_icon.png";
                 _printerStatusText = "Printing...";
               });
             }
@@ -164,6 +168,7 @@ class _HomeState extends State<Home> {
           case 4:
             if (mounted) {
               setState(() {
+                _printerStatusIcon ="assets/images/workspace/unselect_icon.png";
                 _printerStatusText = "Temporarily stop Printing";
               });
             }
@@ -234,7 +239,7 @@ class _HomeState extends State<Home> {
       //绑定打印机
       var params = {
         "macAddress": _barcode.toString().split(":")[2],
-        "customerName": "norman"
+        "customerName": "norman1"
       };
       var res =
           await Http.post(path: bindPrint, data: params, options: options);
@@ -251,6 +256,7 @@ class _HomeState extends State<Home> {
       }
       if (res["code"] == 200) {
         showToast(res["msg"] == "@@E2-20@@" ? "打印机添加成功！" : "");
+        getUserBidPrinter();
       } else {
         showToast(res["msg"] == "@@E2-17@@" ? "您已经绑定过这台打印机" : "");
       }
@@ -375,7 +381,7 @@ class _HomeState extends State<Home> {
           ),
           Row(children: <Widget>[
             Image.asset(
-              "assets/images/workspace/green_icon.png",
+              "$_printerStatusIcon",
               width: ScreenUtil().setWidth(35),
               height: ScreenUtil().setHeight(35),
             ),
@@ -566,7 +572,7 @@ class _TabBarPrintState extends State<TabBarPrint>
                     ////指示器大小的计算方式，TabBarIndicatorSize.tab：跟每个tab等宽，
                     tabs: <Widget>[
                       Container(
-                        height: ScreenAdapter.height(150),
+                        height: ScreenAdapter.height(200),
                         child: Tab(
                           icon: Image.asset(
                             "assets/images/workspace/warm_tab.png",
@@ -577,7 +583,7 @@ class _TabBarPrintState extends State<TabBarPrint>
                         ),
                       ),
                       Container(
-                          height: ScreenAdapter.height(150),
+                          height: ScreenAdapter.height(200),
                           child: Tab(
                             icon: Image.asset(
                               "assets/images/workspace/hotbed_tab.png",
@@ -587,7 +593,7 @@ class _TabBarPrintState extends State<TabBarPrint>
                             text: "热床温度",
                           )),
                       Container(
-                          height: ScreenAdapter.height(150),
+                          height: ScreenAdapter.height(200),
                           child: Tab(
                             icon: Image.asset(
                               "assets/images/workspace/move_shaft_tab.png",
@@ -597,7 +603,7 @@ class _TabBarPrintState extends State<TabBarPrint>
                             text: "移动轴",
                           )),
                       Container(
-                          height: ScreenAdapter.height(150),
+                          height: ScreenAdapter.height(200),
                           child: Tab(
                             icon: Image.asset(
                               "assets/images/workspace/material_tab.png",

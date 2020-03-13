@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../../modelLib_json.dart';
 import 'package:transparent_image/transparent_image.dart';
+import './test_demo.dart';
 
 class ModelLibraryPage extends StatefulWidget {
   @override
@@ -87,13 +88,18 @@ class _ModelLibraryPageState extends State<ModelLibraryPage> {
         value: SystemUiOverlayStyle.light,
         child: Scaffold(
             appBar: AppBar(
-              centerTitle:true,
-              brightness: Brightness.light,
-                title: Text(
-                  // "Models Library",
-                  "MyMinifactory Models Lib ",
-                  style: TextStyle(color: Colors.white),
-                ),
+                centerTitle: true,
+                brightness: Brightness.light,
+                title: InkWell(
+                    onTap: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => DemoPage()));
+                    },
+                    child: Text(
+                      // "Models Library",
+                      "MyMinifactory Models Lib ",
+                      style: TextStyle(color: Colors.white),
+                    )),
                 actions: <Widget>[
                   InkWell(
                       onTap: () {
@@ -206,21 +212,21 @@ class _ModelLibraryPageState extends State<ModelLibraryPage> {
       );
     }
     return Container(
-      alignment: Alignment.center,
-      padding: EdgeInsets.all(ScreenAdapter.width(10)),
-      height: ScreenAdapter.height(320),
-      width: ScreenAdapter.getScreenWidth(),
-      // padding: EdgeInsets.all(1),
-      child: GridView.count(
-        scrollDirection: Axis.horizontal,
-        physics: new NeverScrollableScrollPhysics(),
-        crossAxisCount: 2,
-        // padding: EdgeInsets.all(ScreenAdapter.width(5)),
-        children: _modelList.map((item) {
-          return _gridItem(item);
-        }).toList(),
-      ),
-    );
+        margin: EdgeInsets.symmetric(horizontal: ScreenAdapter.width(50)),
+        height: ScreenAdapter.height(320),
+        width: ScreenAdapter.getScreenWidth(),
+        child: 
+        GridView.count(
+          scrollDirection: Axis.horizontal,
+          physics: new NeverScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          childAspectRatio:1,
+          padding: EdgeInsets.all(ScreenAdapter.width(5)),
+          children: _modelList.map((item) {
+            return _gridItem(item);
+          }).toList(),
+        ),
+        );
   }
 
   //分类item
@@ -235,51 +241,59 @@ class _ModelLibraryPageState extends State<ModelLibraryPage> {
         },
         child: Container(
           alignment: Alignment.center,
-          width:ScreenAdapter.getScreenWidth() / 4 ,
-          height: ScreenAdapter.height(180),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-            Container(
-              alignment: Alignment.center,
-                child:
-                    // FadeInImage.assetNetwork(
-                    //   placeholder: '',
-                    //   image:
-                    //       "https://cdn.myminifactory.com/assets/object-assets/579fa0960f9be/images/70X70-8491a2feed6f116e1457d5f970b500b2a415be54.jpg",
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                    alignment: Alignment.center,
+                    child:
+                        // FadeInImage.assetNetwork(
+                        //   placeholder: '',
+                        //   image:
+                        //       "https://cdn.myminifactory.com/assets/object-assets/579fa0960f9be/images/70X70-8491a2feed6f116e1457d5f970b500b2a415be54.jpg",
+                        //   width: ScreenAdapter.width(150),
+                        // ),
+                        Image.network(
+                      "https://cdn.myminifactory.com/assets/object-assets/579fa0960f9be/images/70X70-8491a2feed6f116e1457d5f970b500b2a415be54.jpg",
+                      // width: ScreenAdapter.width(200),
+                      fit: BoxFit.cover,
+                      headers: {
+                        "Cookie":
+                            "device_view=full; hl=en; __cfduid=dce88bcc271c0ed1315b2d9ef2be5fd121582007209; _pk_testcookie..undefined=1; _pk_testcookie.1.2bd0=1; _pk_ses.1.2bd0=1; _ga=GA1.2.277281702.1582007213; _gid=GA1.2.2010046157.1582007213; __gads=ID=cac1498818c2c75e:T=1582007382:S=ALNI_MZ5nSkbMVp0otpuxzdQXxbaEe__kQ; SESSID=7f372812d0a3962f03d0b3c5b592a945; _pk_id.1.2bd0=6881566e9711e610.1582007212.1.1582010421.1582007212."
+                      },
+                    )
+                    //       CachedNetworkImage(
+                    //         width: ScreenAdapter.width(150),
+                    //         fit: BoxFit.fill,
+                    //     imageUrl: "https://cdn.myminifactory.com/assets/object-assets/579fa0960f9be/images/70X70-8491a2feed6f116e1457d5f970b500b2a415be54.jpg",
+                    //     placeholder: (context, url) => CircularProgressIndicator(),
+                    //     errorWidget: (context, url, error) => Icon(Icons.error),
+                    //  ),
+                    // Image.network(
+                    //   "https://cdn.myminifactory.com/assets/object-assets/579fa0960f9be/images/70X70-8491a2feed6f116e1457d5f970b500b2a415be54.jpg",
                     //   width: ScreenAdapter.width(150),
+                    //   fit: BoxFit.fill,
                     // ),
-                    Image.network(
-              "https://cdn.myminifactory.com/assets/object-assets/579fa0960f9be/images/70X70-8491a2feed6f116e1457d5f970b500b2a415be54.jpg",
-              width: ScreenAdapter.width(160),
-              headers: {
-                "Cookie":
-                    "device_view=full; hl=en; __cfduid=dce88bcc271c0ed1315b2d9ef2be5fd121582007209; _pk_testcookie..undefined=1; _pk_testcookie.1.2bd0=1; _pk_ses.1.2bd0=1; _ga=GA1.2.277281702.1582007213; _gid=GA1.2.2010046157.1582007213; __gads=ID=cac1498818c2c75e:T=1582007382:S=ALNI_MZ5nSkbMVp0otpuxzdQXxbaEe__kQ; SESSID=7f372812d0a3962f03d0b3c5b592a945; _pk_id.1.2bd0=6881566e9711e610.1582007212.1.1582010421.1582007212."
-              },
-            )
-                //       CachedNetworkImage(
-                //         width: ScreenAdapter.width(150),
-                //         fit: BoxFit.fill,
-                //     imageUrl: "https://cdn.myminifactory.com/assets/object-assets/579fa0960f9be/images/70X70-8491a2feed6f116e1457d5f970b500b2a415be54.jpg",
-                //     placeholder: (context, url) => CircularProgressIndicator(),
-                //     errorWidget: (context, url, error) => Icon(Icons.error),
-                //  ),
-                // Image.network(
-                //   "https://cdn.myminifactory.com/assets/object-assets/579fa0960f9be/images/70X70-8491a2feed6f116e1457d5f970b500b2a415be54.jpg",
-                //   width: ScreenAdapter.width(150),
-                //   fit: BoxFit.fill,
-                // ),
-                ),
-            Container(
-                alignment: Alignment.center,
-                // width: ScreenAdapter.width(160),
-                child: Text(
-                  "${item.name}",
-                  style: TextStyle(fontSize: ScreenAdapter.size(16)),
-                  overflow: TextOverflow.visible,
-                ))
-          ]),
+                    ),
+                Container(
+                    alignment: Alignment.center,
+                    // width: ScreenAdapter.width(160),
+                    child: Text(
+                      "${item.name}",
+                      style: TextStyle(fontSize: ScreenAdapter.size(16)),
+                      overflow: TextOverflow.visible,
+                    ))
+              ]),
         ));
+    // Image.network(
+    //                   "https://cdn.myminifactory.com/assets/object-assets/579fa0960f9be/images/70X70-8491a2feed6f116e1457d5f970b500b2a415be54.jpg",
+    //                   // width: ScreenAdapter.width(160),
+    //                   fit: BoxFit.cover,
+    //                   headers: {
+    //                     "Cookie":
+    //                         "device_view=full; hl=en; __cfduid=dce88bcc271c0ed1315b2d9ef2be5fd121582007209; _pk_testcookie..undefined=1; _pk_testcookie.1.2bd0=1; _pk_ses.1.2bd0=1; _ga=GA1.2.277281702.1582007213; _gid=GA1.2.2010046157.1582007213; __gads=ID=cac1498818c2c75e:T=1582007382:S=ALNI_MZ5nSkbMVp0otpuxzdQXxbaEe__kQ; SESSID=7f372812d0a3962f03d0b3c5b592a945; _pk_id.1.2bd0=6881566e9711e610.1582007212.1.1582010421.1582007212."
+    //                   },
+    //                 );
   }
 
   Widget _catListWidget() {
@@ -384,7 +398,6 @@ Widget _educationBanners(item, context) {
                     width: ScreenAdapter.getScreenWidth() / 3 -
                         ScreenAdapter.width(20),
                     height: ScreenAdapter.height(200),
-                    
                   ),
                 ),
                 // Image.network(
