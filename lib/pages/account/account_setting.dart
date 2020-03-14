@@ -111,6 +111,8 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
                     if (res["code"] == 200) {
                       Navigator.pushNamedAndRemoveUntil(
                           context, "/", (Route<dynamic> route) => false);
+                    }else{
+                      showToast(res["msg"],position: ToastPosition.bottom,backgroundColor: Colors.grey[400]);
                     }
                   },
                 ),

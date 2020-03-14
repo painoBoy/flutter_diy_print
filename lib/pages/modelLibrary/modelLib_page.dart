@@ -212,21 +212,29 @@ class _ModelLibraryPageState extends State<ModelLibraryPage> {
       );
     }
     return Container(
-        margin: EdgeInsets.symmetric(horizontal: ScreenAdapter.width(50)),
+        margin: EdgeInsets.symmetric(horizontal: ScreenAdapter.width(10)),
         height: ScreenAdapter.height(320),
         width: ScreenAdapter.getScreenWidth(),
-        child: 
-        GridView.count(
-          scrollDirection: Axis.horizontal,
-          physics: new NeverScrollableScrollPhysics(),
-          crossAxisCount: 2,
-          childAspectRatio:1,
-          padding: EdgeInsets.all(ScreenAdapter.width(5)),
+        child:
+            // GridView.count(
+            //   scrollDirection: Axis.horizontal,
+            //   physics: new NeverScrollableScrollPhysics(),
+            //   crossAxisCount: 4,
+            //   childAspectRatio:1,
+            //   padding: EdgeInsets.all(ScreenAdapter.width(5)),
+            //   children: _modelList.map((item) {
+            //     return _gridItem(item);
+            //   }).toList(),
+            // ),
+            GridView(
+          padding: EdgeInsets.symmetric(vertical: 10),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+          ),
           children: _modelList.map((item) {
             return _gridItem(item);
           }).toList(),
-        ),
-        );
+        ));
   }
 
   //分类item

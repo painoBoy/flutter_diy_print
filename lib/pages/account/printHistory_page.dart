@@ -127,7 +127,7 @@ class _PrintHistoryPageState extends State<PrintHistoryPage> {
             child: Provider.of<PrintTaskProvider>(context).taskList[index]
                         ["modelIcon"] ==
                     ""
-                ? Center(child: Text("No Pic Data"))
+                ? Center(child: Text("${Provider.of<PrintTaskProvider>(context).taskList[index]["modelurl"]}"))
                 : Image.network(
                     "${Provider.of<PrintTaskProvider>(context).taskList[index]["modelIcon"]}",
                     fit: BoxFit.fill),

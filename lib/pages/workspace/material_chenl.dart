@@ -215,45 +215,31 @@ class _MaterialPanelState extends State<MaterialPanel> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(5, 15, 5, 10),
-      width: ScreenUtil().width,
-      child: isShowLoading
-          ? Stack(
-              children: <Widget>[
-                Container(
-                    color: Colors.white,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: <Widget>[
-                        _item("进料", "assets/images/workspace/material_in.png",
-                            context, 0),
-                        _item("退料", "assets/images/workspace/material_out.png",
-                            context, 1),
-                      ],
-                    )),
-                // Positioned(
-                //   left: ScreenUtil().width / 2 ,
-                //   top:50,
-                //   child: CupertinoActivityIndicator())
-                Container(
-                  margin: EdgeInsets.fromLTRB(
-                      MediaQuery.of(context).size.width / 2 - 15, 50, 0, 0),
-                  child: CupertinoActivityIndicator(),
-                )
-              ],
-            )
-          : Container(
-              color: Colors.white,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  _item("进料", "assets/images/workspace/material_in.png",
-                      context, 0),
-                  _item("退料", "assets/images/workspace/material_out.png",
-                      context, 1),
-                ],
-              )),
-    );
+        color: Colors.white,
+        padding: EdgeInsets.fromLTRB(5, 15, 5, 10),
+        width: ScreenUtil().width,
+        child: Stack(
+          children: <Widget>[
+            Container(
+                alignment: Alignment.center,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    _item("进料", "assets/images/workspace/material_in.png",
+                        context, 0),
+                    _item("退料", "assets/images/workspace/material_out.png",
+                        context, 1),
+                  ],
+                )),
+            isShowLoading
+                ? Container(
+                    margin: EdgeInsets.fromLTRB(
+                        MediaQuery.of(context).size.width / 2 - 15, 50, 0, 0),
+                    child: CupertinoActivityIndicator(),
+                  )
+                : Container(),
+          ],
+        ));
   }
 
   //进料 退料btn

@@ -15,6 +15,7 @@ import '../../pages/workspace/nozzle.dart';
 import '../../widget/popup_window.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 import 'package:oktoast/oktoast.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,7 +46,7 @@ class _HomeState extends State<Home> {
   List _printerList = []; //绑定用户打印机列表
   int _currentPrinterId; // 当前选中打印机id
   String _printerStatusText = "not connected";
-  String _printerStatusIcon ="assets/images/workspace/green_icon.png";
+  String _printerStatusIcon = "assets/images/workspace/green_icon.png";
   Timer _timer; //轮询查询打印机状态
 
   @override
@@ -136,7 +137,8 @@ class _HomeState extends State<Home> {
           case 0:
             if (mounted) {
               setState(() {
-                _printerStatusIcon = "assets/images/workspace/unselect_icon.png";
+                _printerStatusIcon =
+                    "assets/images/workspace/unselect_icon.png";
                 _printerStatusText = "not connected";
               });
             }
@@ -144,7 +146,7 @@ class _HomeState extends State<Home> {
           case 1:
             if (mounted) {
               setState(() {
-                _printerStatusIcon ="assets/images/workspace/green_icon.png";
+                _printerStatusIcon = "assets/images/workspace/green_icon.png";
                 _printerStatusText = "connected";
               });
             }
@@ -152,7 +154,7 @@ class _HomeState extends State<Home> {
           case 2:
             if (mounted) {
               setState(() {
-                _printerStatusIcon ="assets/images/workspace/green_icon.png";
+                _printerStatusIcon = "assets/images/workspace/green_icon.png";
                 _printerStatusText = "Printing in progress...";
               });
             }
@@ -160,7 +162,7 @@ class _HomeState extends State<Home> {
           case 3:
             if (mounted) {
               setState(() {
-                _printerStatusIcon ="assets/images/workspace/green_icon.png";
+                _printerStatusIcon = "assets/images/workspace/green_icon.png";
                 _printerStatusText = "Printing...";
               });
             }
@@ -168,7 +170,8 @@ class _HomeState extends State<Home> {
           case 4:
             if (mounted) {
               setState(() {
-                _printerStatusIcon ="assets/images/workspace/unselect_icon.png";
+                _printerStatusIcon =
+                    "assets/images/workspace/unselect_icon.png";
                 _printerStatusText = "Temporarily stop Printing";
               });
             }
@@ -349,10 +352,33 @@ class _HomeState extends State<Home> {
     return Container(
       margin: EdgeInsets.fromLTRB(30, 10, 0, 0),
       decoration: BoxDecoration(color: Colors.white),
-      child: Image.asset(
-        "assets/images/workspace/banner_printer.png",
-        width: ScreenUtil().setWidth(380),
-        height: ScreenUtil().setHeight(380),
+      child: Column(
+        children: <Widget>[
+          _printerStatusText == "Print..."
+              ? LinearPercentIndicator(
+                  width: ScreenUtil().setWidth(380),
+                  animation: true,
+                  lineHeight: 20.0,
+                  animationDuration: 2500,
+                  percent: 0.8,
+                  center: Text(
+                    "80.0%",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  linearStrokeCap: LinearStrokeCap.roundAll,
+                  progressColor: Color(0xFFF79432),
+                )
+              : Container(
+                  width: ScreenUtil().setWidth(380),
+                  height: 20,
+                  color: Colors.white,
+                ),
+          Image.asset(
+            "assets/images/workspace/banner_printer.png",
+            width: ScreenUtil().setWidth(380),
+            height: ScreenUtil().setHeight(300),
+          )
+        ],
       ),
     );
   }
