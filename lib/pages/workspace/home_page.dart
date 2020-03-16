@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-19 14:50:07
- * @LastEditTime: 2020-03-13 23:24:34
+ * @LastEditTime: 2020-03-14 14:38:47
  * @LastEditors: Please set LastEditors
  * @Description: 打印首页
  * @FilePath: /diy_3d_print/lib/pages/home_page.dart
@@ -95,6 +95,10 @@ class _HomeState extends State<Home> {
               //如果未选择 就默认本地存储
               "printSize",
               res['data'][0]["parameter"]["motorStroke"]);
+               prefs.setInt(
+              //如果未选择 就默认存储List的第一个打印ID至本地
+              "selectedPrintId",
+              res['data'][0]["id"]);
           if (mounted)
             setState(() {
               _printerList = res['data'];

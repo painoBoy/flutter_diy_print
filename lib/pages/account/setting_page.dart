@@ -21,10 +21,11 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   getUserInfo() async {
-    _userInfo = json.decode(await Storage.getString("userInfo"));
+    var info = await Storage.getString("userInfo");
+    if(mounted)setState(() {
+      _userInfo = json.decode(info);
+    });
   }
-
- 
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +70,7 @@ class _SettingPageState extends State<SettingPage> {
                     Container(
                       margin: EdgeInsets.only(left: ScreenAdapter.width(30)),
                       child: Text(
-                        "${_userInfo['name']}",
+                        _userInfo == null? "" :"${_userInfo['name']}",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: ScreenAdapter.size(40)),
@@ -79,7 +80,7 @@ class _SettingPageState extends State<SettingPage> {
                     Container(
                       margin: EdgeInsets.only(left: ScreenAdapter.width(30)),
                       child: Text(
-                        "Phone Num: ${_userInfo['phoneNum']}",
+                        _userInfo ==null ?"":"Phone Num: ${_userInfo['phoneNum']}",
                         textAlign: TextAlign.left,
                         style: TextStyle(
                             color: Colors.white,

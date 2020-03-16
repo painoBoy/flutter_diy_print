@@ -41,12 +41,10 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
     print("请求收藏列表=======》");
     var res = await NetRequest.get(Config.BASE_URL + favoriteList);
     print("res=${res}");
-    if (res["data"].length != 0) {
+    if (res["data"]!=null) {
       _favorite = res["data"];
       print("_favorite=${_favorite}");
-    }
-
-    if (res['data'].contains(widget.arguments["objId"].toString())) {
+      if (res['data'].contains(widget.arguments["objId"].toString())) {
       print("有");
       if (mounted) {
         setState(() {
@@ -54,6 +52,9 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
         });
       }
     }
+    }
+
+    
   }
 
   //id 获取obj对象
@@ -151,6 +152,7 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
               }
             }
             if (isCanPrint) {
+              print("能打印了");
               Map _taskParams = {
                 "printerId": prefs.getInt("selectedPrintId"),
                 "icon": modelImageUrl == null ? "null" : modelImageUrl,
@@ -168,28 +170,11 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
                 setState(() {
                   isLoading = false;
                 });
-              // if (res["code"] == 200) {
-              //   //立即开始打印任务
-              //   var taskResult = await NetRequest.get(Config.BASE_URL +
-              //       printTaskApi +
-              //       "/${res['data']['printTaskList'][0]['taskcode']}");
-              //   if (mounted)
-              //     setState(() {
-              //       isLoading = false;
-              //     });
-              //   if (taskResult["code"] == 200) {
-              //     print(taskResult);
-              //   } else {
-              //     showToast(taskResult["msg"],
-              //         backgroundColor: Colors.grey[600]);
-              //   }
-              //   // print("成功");
-              // } else {
-              //   showToast(res["msg"],
-              //       position: ToastPosition.bottom,
-              //       backgroundColor: Colors.grey[600]);
-              // }
               if (res["code"] == 200) {
+                //通过打印任务code 查询打印状态
+                var _printStatusRes = await NetRequest.get(Config.BASE_URL + "printTask/${res['data']['printTaskList'][0]['taskcode']}");
+                print(_printStatusRes);
+                return;
                 showToast("Start printing...",
                     position: ToastPosition.bottom,
                     backgroundColor: Colors.grey[600]);
