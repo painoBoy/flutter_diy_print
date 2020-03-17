@@ -28,6 +28,16 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
   Timer _timer;
   List _favorite = [];
   bool isLoading = false;
+  List printTaskStats = [
+    "all",
+    "Waiting to print",
+    "Printing...",
+    "Print successfully",
+    "Print Failed",
+    "Print ready...",
+    "Offline during printer",
+    "Printing paused"
+  ];
   @override
   void initState() {
     // TODO: implement initState
@@ -41,20 +51,18 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
     print("请求收藏列表=======》");
     var res = await NetRequest.get(Config.BASE_URL + favoriteList);
     print("res=${res}");
-    if (res["data"]!=null) {
+    if (res["data"] != null) {
       _favorite = res["data"];
       print("_favorite=${_favorite}");
       if (res['data'].contains(widget.arguments["objId"].toString())) {
-      print("有");
-      if (mounted) {
-        setState(() {
-          _isCollection = true;
-        });
+        print("有");
+        if (mounted) {
+          setState(() {
+            _isCollection = true;
+          });
+        }
       }
     }
-    }
-
-    
   }
 
   //id 获取obj对象
@@ -91,7 +99,7 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
       setState(() {
         isLoading = true;
       });
-      //判断打印机状态 为1时才能打印
+    //判断打印机状态 为1时才能打印
     var printInfoResult = await NetRequest.get(Config.BASE_URL +
         printerInfo +
         "/${Provider.of<PrinterIdProvider>(context).printId}");
@@ -172,12 +180,19 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
                 });
               if (res["code"] == 200) {
                 //通过打印任务code 查询打印状态
-                var _printStatusRes = await NetRequest.get(Config.BASE_URL + "printTask/${res['data']['printTaskList'][0]['taskcode']}");
+                var _printStatusRes = await NetRequest.get(Config.BASE_URL +
+                    "printTask/${res['data']['printTaskList'][0]['taskcode']}");
                 print(_printStatusRes);
-                return;
-                showToast("Start printing...",
-                    position: ToastPosition.bottom,
-                    backgroundColor: Colors.grey[600]);
+                if (_printStatusRes["code"] == 200) {
+                  showToast(
+                      printTaskStats[_printStatusRes["data"]["printstate"]],
+                      position: ToastPosition.bottom,
+                      backgroundColor: Colors.grey[600]);
+                } else {
+                  showToast(_printStatusRes["msg"],
+                      position: ToastPosition.bottom,
+                      backgroundColor: Colors.grey[600]);
+                }
               } else {
                 showToast(res["msg"],
                     position: ToastPosition.bottom,

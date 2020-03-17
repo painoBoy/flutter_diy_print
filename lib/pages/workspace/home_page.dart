@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-19 14:50:07
- * @LastEditTime: 2020-03-14 14:38:47
+ * @LastEditTime: 2020-03-17 18:33:13
  * @LastEditors: Please set LastEditors
  * @Description: 打印首页
  * @FilePath: /diy_3d_print/lib/pages/home_page.dart
@@ -286,6 +286,7 @@ class _HomeState extends State<Home> {
     double screenWidth = MediaQuery.of(context).size.width; // 获取屏幕宽度
     double screenHeight = MediaQuery.of(context).size.height; // 获取屏幕高度
     return Scaffold(
+      resizeToAvoidBottomInset:false,
         appBar: AppBar(
           brightness: Brightness.light,
           // leading: Icon(
@@ -320,7 +321,7 @@ class _HomeState extends State<Home> {
             child: OKToast(
                 position: ToastPosition.bottom,
                 backgroundColor: Colors.grey[600],
-                child: Column(
+                child: SingleChildScrollView(child: Column(
                   children: <Widget>[
                     Container(
                       width: ScreenUtil().width,
@@ -344,11 +345,10 @@ class _HomeState extends State<Home> {
                     ),
                     Container(
                       width: screenWidth,
-                      // height: ScreenUtil().setHeight(600),
                       child: TabBarPrint(),
                     ),
                   ],
-                ))));
+                )),)));
   }
 
   //打印机Banner
@@ -358,7 +358,8 @@ class _HomeState extends State<Home> {
       decoration: BoxDecoration(color: Colors.white),
       child: Column(
         children: <Widget>[
-          _printerStatusText == "Print..."
+          // _printerStatusText == "Print..."
+          true
               ? LinearPercentIndicator(
                   width: ScreenUtil().setWidth(380),
                   animation: true,

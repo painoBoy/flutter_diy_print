@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-03-02 15:21:39
- * @LastEditTime: 2020-03-03 17:30:41
+ * @LastEditTime: 2020-03-16 17:12:43
  * @LastEditors: Please set LastEditors
  * @Description: 打印历史记录页
  * @FilePath: /diy_3d_print/lib/pages/account/collection_page.dart
@@ -118,7 +118,7 @@ class _PrintHistoryPageState extends State<PrintHistoryPage> {
       padding: EdgeInsets.only(bottom: ScreenAdapter.height(0)),
       child: Card(
           child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
           Container(
             width: ScreenAdapter.width(220),
@@ -127,15 +127,15 @@ class _PrintHistoryPageState extends State<PrintHistoryPage> {
             child: Provider.of<PrintTaskProvider>(context).taskList[index]
                         ["modelIcon"] ==
                     ""
-                ? Center(child: Text("${Provider.of<PrintTaskProvider>(context).taskList[index]["modelurl"]}"))
+                ? Center(child: Text("No Data"))
                 : Image.network(
                     "${Provider.of<PrintTaskProvider>(context).taskList[index]["modelIcon"]}",
                     fit: BoxFit.fill),
           ),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Container(
+              Row(children: <Widget>[
+                Container(
                 child: Text("print status:",
                     style: TextStyle(
                         fontSize: ScreenAdapter.size(30),
@@ -149,22 +149,57 @@ class _PrintHistoryPageState extends State<PrintHistoryPage> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Container(child:Text("失败原因:")),
+                Container(child:Text(Provider.of<PrintTaskProvider>(context)
+                      .taskList[index]['errormessage'])),
+              ],
+            ),
             ],
           ),
-          Container(
-            margin: EdgeInsets.only(right: ScreenAdapter.width(30)),
-            width: ScreenAdapter.width(180),
-            alignment: Alignment.center,
-            height: ScreenAdapter.height(60),
-            decoration: BoxDecoration(
-                color: Color(0xFFF79432),
-                borderRadius: BorderRadius.circular(10)),
-            child: Text(
-              "Print",
-              style: TextStyle(
-                  color: Colors.white, fontSize: ScreenAdapter.size(35)),
-            ),
-          ),
+          // Column(
+          //   crossAxisAlignment: CrossAxisAlignment.start,
+          //   children: <Widget>[
+          //     Container(
+          //       child: Text("print status:",
+          //           style: TextStyle(
+          //               fontSize: ScreenAdapter.size(30),
+          //               fontWeight: FontWeight.bold)),
+          //     ),
+          //     Container(
+          //       child: Text(
+          //         _printStatusList[Provider.of<PrintTaskProvider>(context)
+          //             .taskList[index]['printstate']],
+          //         maxLines: 1,
+          //         overflow: TextOverflow.ellipsis,
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          // Container(
+          //   child:Column(children: <Widget>[
+          //     Text(Provider.of<PrintTaskProvider>(context)
+          //             .taskList[index]['errormessage'])
+          //   ],)
+          // )
+          // Container(
+          //   margin: EdgeInsets.only(right: ScreenAdapter.width(30)),
+          //   width: ScreenAdapter.width(180),
+          //   alignment: Alignment.center,
+          //   height: ScreenAdapter.height(60),
+          //   decoration: BoxDecoration(
+          //       color: Color(0xFFF79432),
+          //       borderRadius: BorderRadius.circular(10)),
+          //   child: Text(
+          //     "Print",
+          //     style: TextStyle(
+          //         color: Colors.white, fontSize: ScreenAdapter.size(35)),
+          //   ),
+          // ),
         ],
       )),
     );

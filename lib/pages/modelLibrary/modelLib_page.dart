@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../../modelLib_json.dart';
 import 'package:transparent_image/transparent_image.dart';
-import './test_demo.dart';
 
 class ModelLibraryPage extends StatefulWidget {
   @override
@@ -90,16 +89,11 @@ class _ModelLibraryPageState extends State<ModelLibraryPage> {
             appBar: AppBar(
                 centerTitle: true,
                 brightness: Brightness.light,
-                title: InkWell(
-                    onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => DemoPage()));
-                    },
-                    child: Text(
-                      // "Models Library",
-                      "MyMinifactory Models Lib ",
-                      style: TextStyle(color: Colors.white),
-                    )),
+                title: Text(
+                  // "Models Library",
+                  "MyMinifactory Models Lib ",
+                  style: TextStyle(color: Colors.white),
+                ),
                 actions: <Widget>[
                   InkWell(
                       onTap: () {
@@ -213,20 +207,10 @@ class _ModelLibraryPageState extends State<ModelLibraryPage> {
     }
     return Container(
         margin: EdgeInsets.symmetric(horizontal: ScreenAdapter.width(10)),
-        height: ScreenAdapter.height(320),
+        height: ScreenAdapter.height(400),
         width: ScreenAdapter.getScreenWidth(),
-        child:
-            // GridView.count(
-            //   scrollDirection: Axis.horizontal,
-            //   physics: new NeverScrollableScrollPhysics(),
-            //   crossAxisCount: 4,
-            //   childAspectRatio:1,
-            //   padding: EdgeInsets.all(ScreenAdapter.width(5)),
-            //   children: _modelList.map((item) {
-            //     return _gridItem(item);
-            //   }).toList(),
-            // ),
-            GridView(
+        child: GridView(
+          physics: NeverScrollableScrollPhysics(),
           padding: EdgeInsets.symmetric(vertical: 10),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,

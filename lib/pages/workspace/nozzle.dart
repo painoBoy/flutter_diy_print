@@ -1,7 +1,7 @@
 /*
  * @Author: liaozhou
  * @Date: 2020-01-18 13:37:23
- * @LastEditTime: 2020-03-12 17:07:41
+ * @LastEditTime: 2020-03-17 20:17:38
  * @LastEditors: Please set LastEditors
  * @Description: 喷嘴温度操作面板widget
  * @FilePath: /diy_3d_print/lib/pages/workspace/nozzle.dart
@@ -18,6 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import '../provider/printerParams.dart';
 import '../provider/printCommand.dart';
+import '../../widget/waveSlider.dart';
 
 class NozzleWidget extends StatefulWidget {
   @override
@@ -27,6 +28,12 @@ class NozzleWidget extends StatefulWidget {
 class _NozzleWidgetState extends State<NozzleWidget> {
   double _progress = 0;
   bool isShowLoading = false;
+  
+  //waveSlider 传值
+  onDataChange(double val) {
+    print(val is double); 
+     Provider.of<NozzleWarm>(context).changeNozzleWarm(val);
+  }
 
   //设置喷嘴温度
   _setPrinerNozzleWarm() async {
@@ -63,11 +70,13 @@ class _NozzleWidgetState extends State<NozzleWidget> {
       decoration: BoxDecoration(color: Colors.white),
       margin: EdgeInsets.only(top: ScreenUtil().setHeight(20)),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
           _operationPanelTilte(), //title
-          _operationPanel(), //热床操作面板
-          _okBtn(),
+          // _operationPanel(), 
+          WaveSlider(callback1: (val) => onDataChange(val),callback2: (){_setPrinerNozzleWarm();},),//热床操作面板
+          // _okBtn(),
           isShowLoading ? CupertinoActivityIndicator() : Text(""),
         ],
       ),
@@ -92,7 +101,7 @@ class _NozzleWidgetState extends State<NozzleWidget> {
                 children: <TextSpan>[
                   TextSpan(
                       text:
-                          "${Provider.of<NozzleWarm>(context).nozzleWarm.round()}°C",
+                          "${Provider.of<NozzleWarm>(context).nozzleWarm.round().toString()}°C",
                       style: TextStyle(color: Color(0xFFF79432)))
                 ]),
           ),

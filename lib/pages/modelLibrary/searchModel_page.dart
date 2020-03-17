@@ -1,7 +1,7 @@
 /*
  * @Author: liaozhou
  * @Date: 2020-02-26 15:29:03
- * @LastEditTime: 2020-02-28 15:54:38
+ * @LastEditTime: 2020-03-16 16:05:25
  * @LastEditors: Please set LastEditors
  * @Description: 模型库搜索页面
  * @FilePath: /diy_3d_print/lib/pages/modelLibrary/searchModel_page.dart
@@ -211,7 +211,7 @@ class _SearchModelPageState extends State<SearchModelPage> {
             padding: EdgeInsets.all(ScreenAdapter.width(20)),
             alignment: Alignment.centerLeft,
             width: ScreenAdapter.getScreenWidth(),
-            child: Text("搜索发现")),
+            child: Text("Search found")),
         Container(
             padding: EdgeInsets.only(left: ScreenAdapter.width(22)),
             alignment: Alignment.centerLeft,
@@ -312,7 +312,7 @@ class _SearchModelPageState extends State<SearchModelPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text("最近搜索"),
+              Text("Recently searched"),
               IconButton(icon: Icon(Icons.delete), onPressed: _deleteHistory)
             ],
           ),
