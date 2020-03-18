@@ -10,11 +10,43 @@
 import '../../utils/ScreenAdapter.dart';
 import 'package:flutter/material.dart';
 import 'package:transparent_image/transparent_image.dart';
-
 import 'package:flutter/services.dart';
-// import '../../utils//ScreenAdapter.dart';
+import '../../network/api.dart';
+import '../../network/http_config.dart';
+import '../../network/http_request.dart';
+import 'package:dio/dio.dart';
 
-class ModelCollectionPage extends StatelessWidget {
+class ModelCollectionPage extends StatefulWidget {
+  @override
+  _ModelCollectionPageState createState() => _ModelCollectionPageState();
+}
+
+class _ModelCollectionPageState extends State<ModelCollectionPage> {
+  List _userFavoriteModelList = [];
+  List _modelList = [];
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getUserFavoriteModels();
+  }
+
+  _getUserFavoriteModels() async {
+    var res = await NetRequest.get(Config.BASE_URL + favoriteList);
+    print("res=${res}");
+    if (res["data"] != null) {
+      if (mounted)
+        setState(() {
+          _userFavoriteModelList = res["data"];
+        });
+      // for (int i = 0; i < _userFavoriteModelList.length; i++) {
+      //   Response response = await Dio().get(
+      //       "https://www.myminifactory.com/api/v2/objects/${_userFavoriteModelList[i]}?page=1&per_page=8&key=3a934958-fd58-4a42-ae15-7da531a0cd80");
+      //   print(response.data[i]["name"]);
+      // }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ScreenAdapter.init(context);

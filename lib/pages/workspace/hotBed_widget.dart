@@ -10,6 +10,7 @@ import 'package:oktoast/oktoast.dart';
 import '../../network/api.dart';
 import '../../network/http_config.dart';
 import '../../network/http_request.dart';
+import '../../widget/hotBedWaveSlider.dart';
 
 class HotBedWidget extends StatefulWidget {
   @override
@@ -18,8 +19,13 @@ class HotBedWidget extends StatefulWidget {
 
 class _HotBedWidgetState extends State<HotBedWidget> {
   bool isShowLoading = false;
+   //waveSlider 传值
+  onDataChange(double val) {
+     Provider.of<NozzleWarm>(context).changeHotBedWarm(val);
+  }
+
   //设置热床温度
-  _setPrinerHotBedWarm() async {
+  _setPrinterHotBedWarm() async {
     if(mounted)setState(() {
       isShowLoading = true;
     });
@@ -50,11 +56,12 @@ class _HotBedWidgetState extends State<HotBedWidget> {
       decoration: BoxDecoration(color: Colors.white),
       margin: EdgeInsets.only(top: ScreenUtil().setHeight(20)),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-          _operationPanelTitle(), //
-          _operationPanel(),
-          _okBtn(),
+          _operationPanelTitle(),
+          HotBedSlider(callback1: (val) => onDataChange(val),callback2: (){_setPrinterHotBedWarm();}),
+          // _operationPanel(),
+          // _okBtn(),
           isShowLoading?CupertinoActivityIndicator():Text(""),
         ],
       ),
@@ -107,7 +114,7 @@ class _HotBedWidgetState extends State<HotBedWidget> {
 
   Widget _okBtn() {
     return GestureDetector(
-      onTap: _setPrinerHotBedWarm,
+      onTap: _setPrinterHotBedWarm,
       child: Container(
         child: Image.asset(
           "assets/images/workspace/okBtn.png",

@@ -56,6 +56,7 @@ class _HomeState extends State<Home> {
     isBindPrint();
     getUserBidPrinter(); //获取用户绑定的打印机
     // initTimer();
+
   }
 
   initTimer() {
@@ -95,7 +96,7 @@ class _HomeState extends State<Home> {
               //如果未选择 就默认本地存储
               "printSize",
               res['data'][0]["parameter"]["motorStroke"]);
-               prefs.setInt(
+          prefs.setInt(
               //如果未选择 就默认存储List的第一个打印ID至本地
               "selectedPrintId",
               res['data'][0]["id"]);
@@ -137,6 +138,9 @@ class _HomeState extends State<Home> {
         .then((res) {
       print("res===${res}");
       if (res["code"] == 200) {
+        //修改打印机详情Provider
+        Provider.of<PrinterIdProvider>(context).changePrinterParams(res["data"]);
+        print("provider = ${Provider.of<PrinterIdProvider>(context).printerParams}");
         switch (res["data"]["printState"]) {
           case 0:
             if (mounted) {
@@ -282,28 +286,19 @@ class _HomeState extends State<Home> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { 
     double screenWidth = MediaQuery.of(context).size.width; // 获取屏幕宽度
-    double screenHeight = MediaQuery.of(context).size.height; // 获取屏幕高度
     return Scaffold(
-      resizeToAvoidBottomInset:false,
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           brightness: Brightness.light,
-          // leading: Icon(
-          //   Icons.folder,
-          //   // color: Colors.white,
-          // ),
-          // backgroundColor: Colors.white,
           title: Text(
             "WorkSpace",
             style: TextStyle(color: Colors.white),
           ),
           centerTitle: true,
           actions: <Widget>[
-            // Padding(
-            //   padding: EdgeInsets.only(right: ScreenUtil().setWidth(30)),
-            //   child: Icon(Icons.add_circle,color: Colors.white,),
-            // )
+  
             IconButton(
                 key: _addKey,
                 onPressed: () {
@@ -319,36 +314,52 @@ class _HomeState extends State<Home> {
         body: AnnotatedRegion<SystemUiOverlayStyle>(
             value: SystemUiOverlayStyle.light,
             child: OKToast(
-                position: ToastPosition.bottom,
-                backgroundColor: Colors.grey[600],
-                child: SingleChildScrollView(child: Column(
-                  children: <Widget>[
-                    Container(
-                      width: ScreenUtil().width,
-                      height: ScreenUtil().setHeight(450),
-                      decoration: BoxDecoration(
-                        color: Color(0xFFF79432),
-                      ),
-                      child: Stack(children: [
-                        Container(
-                          margin: EdgeInsets.all(20),
-                          width: ScreenUtil().setWidth(700),
-                          height: ScreenUtil().setHeight(420),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(5)),
-                          child: Row(
-                            children: <Widget>[_banner(), _printStatus()],
-                          ),
+              position: ToastPosition.bottom,
+              backgroundColor: Colors.grey[600],
+              child: SingleChildScrollView(
+                  child: Column(
+                children: <Widget>[
+                  Container(
+                    width: ScreenUtil().width,
+                    height: ScreenUtil().setHeight(450),
+                    decoration: BoxDecoration(
+                      color: Color(0xFFF79432),
+                    ),
+                    child: Stack(children: [
+                      Container(
+                        margin: EdgeInsets.all(20),
+                        width: ScreenUtil().setWidth(700),
+                        height: ScreenUtil().setHeight(420),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5)),
+                        child: Row(
+                          children: <Widget>[_banner(), _printStatus()],
                         ),
-                      ]),
-                    ),
-                    Container(
-                      width: screenWidth,
-                      child: TabBarPrint(),
-                    ),
-                  ],
-                )),)));
+                      ),
+                      Provider.of<PrinterIdProvider>(context).printStatus ==
+                                  0 ||
+                              Provider.of<PrinterIdProvider>(context)
+                                      .printStatus ==
+                                  1
+                          ? Container()
+                          : Positioned(
+                              top: ScreenAdapter.height(60),
+                              left: ScreenAdapter.width(50),
+                              child: Container(
+                                  child: Text("printTask",
+                                      style: TextStyle(
+                                          fontSize: ScreenAdapter.size(20),
+                                          color: Color(0xFFF79432)))))
+                    ]),
+                  ),
+                  Container(
+                    width: screenWidth,
+                    child: TabBarPrint(),
+                  ),
+                ],
+              )),
+            )));
   }
 
   //打印机Banner
@@ -359,24 +370,29 @@ class _HomeState extends State<Home> {
       child: Column(
         children: <Widget>[
           // _printerStatusText == "Print..."
-          true
-              ? LinearPercentIndicator(
-                  width: ScreenUtil().setWidth(380),
-                  animation: true,
-                  lineHeight: 20.0,
-                  animationDuration: 2500,
-                  percent: 0.8,
-                  center: Text(
-                    "80.0%",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  linearStrokeCap: LinearStrokeCap.roundAll,
-                  progressColor: Color(0xFFF79432),
-                )
-              : Container(
+          Provider.of<PrinterIdProvider>(context).printStatus == 0 ||
+                  Provider.of<PrinterIdProvider>(context).printStatus == 1
+              ? Container(
                   width: ScreenUtil().setWidth(380),
                   height: 20,
                   color: Colors.white,
+                )
+              : Container(
+                  alignment: Alignment.centerLeft,
+                  margin: EdgeInsets.only(bottom: 5),
+                  child: LinearPercentIndicator(
+                    width: ScreenUtil().setWidth(260),
+                    animation: true,
+                    lineHeight: 20.0,
+                    animationDuration: 1500,
+                    percent: Provider.of<PrinterIdProvider>(context).printerParams['printProgress'] / 100,
+                    center: Text(
+                      "${Provider.of<PrinterIdProvider>(context).printerParams['printProgress']}%",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    linearStrokeCap: LinearStrokeCap.roundAll,
+                    progressColor: Color(0xFFF79432),
+                  ),
                 ),
           Image.asset(
             "assets/images/workspace/banner_printer.png",
@@ -591,9 +607,11 @@ class _TabBarPrintState extends State<TabBarPrint>
                     //     EdgeInsets.symmetric(horizontal: ScreenUtil().setSp(20)),
                     // labelStyle: TextStyle(fontSize: ScreenUtil().setSp(28), color: Colors.black),
                     // labelStyle: TextStyle(color: Color(0xFFF79432),fontSize: ScreenUtil().setSp(28)),
+
                     unselectedLabelStyle: TextStyle(
                         fontSize: ScreenUtil().setSp(20),
                         color: Colors.grey[600]),
+
                     indicatorColor: Color(0xFFF79432),
                     // indicator: UnderlineTabIndicator(
                     //   insets: EdgeInsets.symmetric(horizontal: 80)

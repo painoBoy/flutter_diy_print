@@ -75,7 +75,7 @@ class _NozzleWidgetState extends State<NozzleWidget> {
         children: <Widget>[
           _operationPanelTilte(), //title
           // _operationPanel(), 
-          WaveSlider(callback1: (val) => onDataChange(val),callback2: (){_setPrinerNozzleWarm();},),//热床操作面板
+          WaveSlider(callback1: (val) => onDataChange(val),callback2: (){_setPrinerNozzleWarm();}),//热床操作面板
           // _okBtn(),
           isShowLoading ? CupertinoActivityIndicator() : Text(""),
         ],

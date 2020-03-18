@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'http_config.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:oktoast/oktoast.dart';
 class HttpRequest {
   static BaseOptions baseOptions = BaseOptions(
       baseUrl: Config.BASE_URL,
@@ -137,6 +137,9 @@ class NetRequest {
       Response response =
           await Dio().get(path, queryParameters: params, options: options);
       print("Response->>>>>>>>>>>");
+      if(response.data["code"] == 401){
+        showToast("Please log in",position: ToastPosition.bottom,backgroundColor: Colors.grey[500]);
+      }
       return response.data;
     } catch (e) {
       print(e);

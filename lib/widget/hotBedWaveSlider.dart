@@ -4,14 +4,14 @@ import 'package:provider/provider.dart';
 import '../pages/provider/printerParams.dart';
 import 'package:oktoast/oktoast.dart';
 
-class WaveSlider extends StatefulWidget {
+class HotBedSlider extends StatefulWidget {
   final double width;
   final double height;
   final Color color;
   final callback1;
   final callback2;
 
-  WaveSlider(
+  HotBedSlider(
       {this.width = 240,
       this.height = 120,
       this.color = Colors.black,
@@ -19,10 +19,10 @@ class WaveSlider extends StatefulWidget {
       this.callback2});
 
   @override
-  _WaveSliderState createState() => _WaveSliderState();
+  _HotBedSliderState createState() => _HotBedSliderState();
 }
 
-class _WaveSliderState extends State<WaveSlider> {
+class _HotBedSliderState extends State<HotBedSlider> {
   double _customInt = 240 / 100;
   double _dragPosition = 0;
   double _dragPercentage = 0;
@@ -43,15 +43,16 @@ class _WaveSliderState extends State<WaveSlider> {
     int _tempData = (_dragPercentage * 100).round();
     //传递父组件温度值
     widget.callback1(_tempData.toDouble());
-    Provider.of<NozzleWarm>(context).changeNozzleWarm(_tempData.toDouble());
+    Provider.of<NozzleWarm>(context).changeHotBedWarm(_tempData.toDouble());
     _tempController.text =
-        Provider.of<NozzleWarm>(context).nozzleWarm.round().toString();
+        Provider.of<NozzleWarm>(context).hotBedWarm.round().toString();
     if ((_dragPercentage * 100).round() > 90) {
-      Provider.of<NozzleWarm>(context).changeTemValue1(220.0);
+      Provider.of<NozzleWarm>(context).changeTemValue2(220.0);
     } else if ((_dragPercentage * 100).round() < 5) {
-      Provider.of<NozzleWarm>(context).changeTemValue1(5.0);
+      Provider.of<NozzleWarm>(context).changeTemValue2(5.0);
     } else {
-      Provider.of<NozzleWarm>(context).changeTemValue1(_customInt * Provider.of<NozzleWarm>(context).nozzleWarm);
+      Provider.of<NozzleWarm>(context).changeTemValue2(
+          _customInt * Provider.of<NozzleWarm>(context).hotBedWarm);
     }
   }
 
@@ -78,33 +79,19 @@ class _WaveSliderState extends State<WaveSlider> {
       return;
     } else if (val.toInt() > 90) {
       double _temp = double.parse(_tempController.text);
-      Provider.of<NozzleWarm>(context).changeNozzleWarm(_temp);
-      Provider.of<NozzleWarm>(context).changeTemValue1(220.0);
+      Provider.of<NozzleWarm>(context).changeHotBedWarm(_temp);
+      Provider.of<NozzleWarm>(context).changeTemValue2(220.0);
     } else if (val.toInt() < 2) {
       double _temp = double.parse(_tempController.text);
-      Provider.of<NozzleWarm>(context).changeNozzleWarm(_temp);
-      Provider.of<NozzleWarm>(context).changeTemValue1(5.0);
+      Provider.of<NozzleWarm>(context).changeHotBedWarm(_temp);
+      Provider.of<NozzleWarm>(context).changeTemValue2(5.0);
     } else {
       double _temp = double.parse(_tempController.text);
-      Provider.of<NozzleWarm>(context).changeNozzleWarm(_temp);
-      Provider.of<NozzleWarm>(context).changeTemValue1(_customInt * Provider.of<NozzleWarm>(context).nozzleWarm);
-      
+      Provider.of<NozzleWarm>(context).changeHotBedWarm(_temp);
+     Provider.of<NozzleWarm>(context).changeTemValue2(_customInt * Provider.of<NozzleWarm>(context).hotBedWarm);
+
     }
   }
-
-  // _cirPosition() {
-  //   if ((_dragPercentage * 100).round() > 90) {
-  //     setState(() {
-  //       tempValue = 220.0;
-  //     });
-  //   } else if ((_dragPercentage * 100).round() < 5) {
-  //     setState(() {
-  //       tempValue = 5.0;
-  //     });
-  //   } else {
-  //     tempValue = _customInt * Provider.of<NozzleWarm>(context).nozzleWarm;
-  //   }
-  // }
 
   @override
   void initState() {
@@ -112,7 +99,7 @@ class _WaveSliderState extends State<WaveSlider> {
     super.initState();
     new Future.delayed(Duration.zero, () {
       _tempController.text =
-          Provider.of<NozzleWarm>(context).nozzleWarm.round().toString();
+          Provider.of<NozzleWarm>(context).hotBedWarm.round().toString();
     });
   }
 
@@ -163,7 +150,7 @@ class _WaveSliderState extends State<WaveSlider> {
                                 fit: BoxFit.cover,
                               )),
                           Positioned(
-                              left: Provider.of<NozzleWarm>(context).tempValue1,
+                              left: Provider.of<NozzleWarm>(context).tempValue2,
                               top: 10,
                               child: Container(
                                   width: ScreenAdapter.width(40),

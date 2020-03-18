@@ -103,14 +103,17 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
     var printInfoResult = await NetRequest.get(Config.BASE_URL +
         printerInfo +
         "/${Provider.of<PrinterIdProvider>(context).printId}");
-    if (printInfoResult["data"]["printState"] != 1) {
-      setState(() {
-        isLoading = false;
-      });
-      showToast("Printer is not idle",
-          position: ToastPosition.bottom, backgroundColor: Colors.grey[400]);
-      return;
+    if (printInfoResult["code"] == 200) {
+      if (printInfoResult["data"]["printState"] != 1) {
+        setState(() {
+          isLoading = false;
+        });
+        showToast("Printer is not idle",
+            position: ToastPosition.bottom, backgroundColor: Colors.grey[400]);
+        return;
+      }
     }
+
     List modelUrlList = []; //模型下载地址
     var modelPrintId; //response id
     modelUrlList.add(
@@ -179,20 +182,28 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
                   isLoading = false;
                 });
               if (res["code"] == 200) {
+                //存储当前打印任务code 至workspace查询
+                showToast("The print task was initiated successfully",
+                    position: ToastPosition.bottom,
+                    backgroundColor: Colors.grey[600]);
+                Provider.of<PrinterIdProvider>(context).changePrintTaskCode(
+                    res['data']['printTaskList'][0]['taskcode']);
+                Navigator.pushNamedAndRemoveUntil(
+                    context, "/tabs", (Route<dynamic> route) => false);
                 //通过打印任务code 查询打印状态
-                var _printStatusRes = await NetRequest.get(Config.BASE_URL +
-                    "printTask/${res['data']['printTaskList'][0]['taskcode']}");
-                print(_printStatusRes);
-                if (_printStatusRes["code"] == 200) {
-                  showToast(
-                      printTaskStats[_printStatusRes["data"]["printstate"]],
-                      position: ToastPosition.bottom,
-                      backgroundColor: Colors.grey[600]);
-                } else {
-                  showToast(_printStatusRes["msg"],
-                      position: ToastPosition.bottom,
-                      backgroundColor: Colors.grey[600]);
-                }
+                // var _printStatusRes = await NetRequest.get(Config.BASE_URL +
+                //     "printTask/${res['data']['printTaskList'][0]['taskcode']}");
+                // print(_printStatusRes);
+                // if (_printStatusRes["code"] == 200) {
+                //   showToast(
+                //       printTaskStats[_printStatusRes["data"]["printstate"]],
+                //       position: ToastPosition.bottom,
+                //       backgroundColor: Colors.grey[600]);
+                // } else {
+                //   showToast(_printStatusRes["msg"],
+                //       position: ToastPosition.bottom,
+                //       backgroundColor: Colors.grey[600]);
+                // }
               } else {
                 showToast(res["msg"],
                     position: ToastPosition.bottom,

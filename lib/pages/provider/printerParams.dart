@@ -7,8 +7,12 @@ class NozzleWarm with ChangeNotifier {
   int _direction = 0; //方向（x、y、z）
   int _pan; //正负
   int _distance = 5; //移动距离
+  double _tempValue1 = 0; //喷嘴温度slider按钮移动定位temp值
+  double _tempValue2 = 0; //热床温度slider按钮移动定位temp值
   double get nozzleWarm => _nozzleWarm;
   double get hotBedWarm => _hotBed;
+  double get tempValue1 => _tempValue1;
+  double get tempValue2 => _tempValue2;
   int get direction => _direction;
   int get distance => _distance;
   int get pan => _pan;
@@ -44,6 +48,16 @@ class NozzleWarm with ChangeNotifier {
   void changeDistance() {
     //改变距离
     _distance == 5 ? _distance = 10 : _distance = 5;
+    notifyListeners();
+  }
+
+  void changeTemValue1(val) {
+    _tempValue1 = val;
+    notifyListeners();
+  }
+
+  void changeTemValue2(val) {
+    _tempValue2 = val;
     notifyListeners();
   }
 }
