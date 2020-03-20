@@ -56,7 +56,7 @@ class _HomeState extends State<Home> {
     isBindPrint();
     getUserBidPrinter(); //获取用户绑定的打印机
     // initTimer();
-
+    print("home页面int");
   }
 
   initTimer() {
@@ -68,6 +68,13 @@ class _HomeState extends State<Home> {
   cancelTimer() {
     if (_timer != null) {
       _timer.cancel();
+    }
+  }
+
+  //获取打印任务状态
+  checkPrintTaskStatus(){
+    if(Provider.of<PrinterIdProvider>(context).printTaskCode !=null){
+      showToast("有的");
     }
   }
 
