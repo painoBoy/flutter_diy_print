@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-19 14:50:07
- * @LastEditTime: 2020-03-17 18:33:13
+ * @LastEditTime: 2020-03-20 17:35:25
  * @LastEditors: Please set LastEditors
  * @Description: 打印首页
  * @FilePath: /diy_3d_print/lib/pages/home_page.dart
@@ -279,7 +279,7 @@ class _HomeState extends State<Home> {
         showToast(res["msg"] == "@@E2-17@@" ? "您已经绑定过这台打印机" : "");
       }
     } else {
-      print("无效二维码");
+      showToast("无效二维码");
     }
   }
 
