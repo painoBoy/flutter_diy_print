@@ -45,8 +45,15 @@ class _HomeState extends State<Home> {
   bool isbindPirnt = false;
   List _printerList = []; //绑定用户打印机列表
   int _currentPrinterId; // 当前选中打印机id
-  String _printerStatusText = "not connected";
-  String _printerStatusIcon = "assets/images/workspace/green_icon.png";
+
+  List<String> _printerStatusText = [
+    "not connected",
+    "connected",
+    "Printing will start,",
+    "Printing...",
+    "Temporarily stop Printing"
+  ];
+
   Timer _timer; //轮询查询打印机状态
 
   @override
@@ -72,8 +79,8 @@ class _HomeState extends State<Home> {
   }
 
   //获取打印任务状态
-  checkPrintTaskStatus(){
-    if(Provider.of<PrinterIdProvider>(context).printTaskCode !=null){
+  checkPrintTaskStatus() {
+    if (Provider.of<PrinterIdProvider>(context).printTaskCode != null) {
       showToast("有的");
     }
   }
@@ -139,60 +146,16 @@ class _HomeState extends State<Home> {
     print(Config.BASE_URL +
         printerInfo +
         "/${Provider.of<PrinterIdProvider>(context).printId}");
-    var res = await NetRequest.get(Config.BASE_URL +
-            printerInfo +
-            "/${Provider.of<PrinterIdProvider>(context).printId}")
-        .then((res) {
-      print("res===${res}");
+    var res = await NetRequest.get(Config.BASE_URL + printerInfo + "/${Provider.of<PrinterIdProvider>(context).printId}").then((res) {
       if (res["code"] == 200) {
+        print("res = ${res}");
         //修改打印机详情Provider
-        Provider.of<PrinterIdProvider>(context).changePrinterParams(res["data"]);
-        print("provider = ${Provider.of<PrinterIdProvider>(context).printerParams}");
-        switch (res["data"]["printState"]) {
-          case 0:
-            if (mounted) {
-              setState(() {
-                _printerStatusIcon =
-                    "assets/images/workspace/unselect_icon.png";
-                _printerStatusText = "not connected";
-              });
-            }
-            break;
-          case 1:
-            if (mounted) {
-              setState(() {
-                _printerStatusIcon = "assets/images/workspace/green_icon.png";
-                _printerStatusText = "connected";
-              });
-            }
-            break;
-          case 2:
-            if (mounted) {
-              setState(() {
-                _printerStatusIcon = "assets/images/workspace/green_icon.png";
-                _printerStatusText = "Printing in progress...";
-              });
-            }
-            break;
-          case 3:
-            if (mounted) {
-              setState(() {
-                _printerStatusIcon = "assets/images/workspace/green_icon.png";
-                _printerStatusText = "Printing...";
-              });
-            }
-            break;
-          case 4:
-            if (mounted) {
-              setState(() {
-                _printerStatusIcon =
-                    "assets/images/workspace/unselect_icon.png";
-                _printerStatusText = "Temporarily stop Printing";
-              });
-            }
-            break;
-          default:
-        }
+        Provider.of<PrinterIdProvider>(context)
+            .changePrinterParams(res["data"]);
+        Provider.of<PrinterIdProvider>(context)
+            .changePrinterStatus(res["data"]["printState"]);
+        print(
+            "provider = ${Provider.of<PrinterIdProvider>(context).printerParams}");
       }
     });
   }
@@ -205,20 +168,6 @@ class _HomeState extends State<Home> {
         Config.BASE_URL + getPrintStatus + "/${prefs.getString('printMac')}");
     print(res);
   }
-
-  //想打印机发送命令
-  // sendPrintCommand() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   print(prefs.getString("userId"));
-  //   Map params = {
-  //     "userUUID": prefs.getString("userId"),
-  //     "printerId": _currentPrinterId,
-  //     "command": "M104 S${Provider.of<NozzleWarm>(context).nozzleWarm}"
-  //   };
-  //   var res =
-  //       await NetRequest.post(Config.BASE_URL + sendCommand, data: params);
-  //   print(res);
-  // }
 
   //扫描二维码 绑定打印机
   Future _scan() async {
@@ -246,13 +195,11 @@ class _HomeState extends State<Home> {
     } catch (e) {
       setState(() => this._barcode = 'Unknown error: $e');
     }
-    if (_barcode.toString().split(":")[2].length == 30 &&
+
+    print("Barcode = ${_barcode}");
+    if (_barcode.toString().split(":")[2].length != 0 &&
         _barcode.toString().split(":")[2] != null) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      Options options = Options(headers: {
-        // HttpHeaders.acceptHeader: "accept: application/json;charset=UTF-8",
-        "Cookie": "JSESSIONID=" + prefs.getString("JSESSIONID")
-      });
 
       //绑定打印机
       var params = {
@@ -260,7 +207,7 @@ class _HomeState extends State<Home> {
         "customerName": "norman1"
       };
       var res =
-          await Http.post(path: bindPrint, data: params, options: options);
+          await NetRequest.post(Config.BASE_URL + bindPrint, data: params);
       prefs.setString("printMac", _barcode.toString().split(":")[2]);
       print("用户绑定是${prefs.getString('JSESSIONID')}");
       if (prefs.getString("printMac") == null) {
@@ -276,7 +223,7 @@ class _HomeState extends State<Home> {
         showToast(res["msg"] == "@@E2-20@@" ? "打印机添加成功！" : "");
         getUserBidPrinter();
       } else {
-        showToast(res["msg"] == "@@E2-17@@" ? "您已经绑定过这台打印机" : "");
+        showToast(res["msg"]);
       }
     } else {
       showToast("无效二维码");
@@ -293,7 +240,7 @@ class _HomeState extends State<Home> {
   }
 
   @override
-  Widget build(BuildContext context) { 
+  Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width; // 获取屏幕宽度
     return Scaffold(
         resizeToAvoidBottomInset: false,
@@ -305,7 +252,6 @@ class _HomeState extends State<Home> {
           ),
           centerTitle: true,
           actions: <Widget>[
-  
             IconButton(
                 key: _addKey,
                 onPressed: () {
@@ -371,14 +317,15 @@ class _HomeState extends State<Home> {
 
   //打印机Banner
   Widget _banner() {
+    print("provider percent = ${Provider.of<PrinterIdProvider>(context).printerParams['printProgress']}");
     return Container(
       margin: EdgeInsets.fromLTRB(30, 10, 0, 0),
       decoration: BoxDecoration(color: Colors.white),
       child: Column(
         children: <Widget>[
-          // _printerStatusText == "Print..."
-          Provider.of<PrinterIdProvider>(context).printStatus == 0 ||
-                  Provider.of<PrinterIdProvider>(context).printStatus == 1
+          
+          Provider.of<PrinterIdProvider>(context).printerParams["printState"] ==
+                      0 
               ? Container(
                   width: ScreenUtil().setWidth(380),
                   height: 20,
@@ -392,7 +339,9 @@ class _HomeState extends State<Home> {
                     animation: true,
                     lineHeight: 20.0,
                     animationDuration: 1500,
-                    percent: Provider.of<PrinterIdProvider>(context).printerParams['printProgress'] / 100,
+                    percent: Provider.of<PrinterIdProvider>(context)
+                            .printerParams['printProgress'] /
+                        100,
                     center: Text(
                       "${Provider.of<PrinterIdProvider>(context).printerParams['printProgress']}%",
                       style: TextStyle(color: Colors.white),
@@ -435,7 +384,9 @@ class _HomeState extends State<Home> {
           ),
           Row(children: <Widget>[
             Image.asset(
-              "$_printerStatusIcon",
+              Provider.of<PrinterIdProvider>(context).printStatus == 0
+                  ? "assets/images/workspace/unselect_icon.png"
+                  : "assets/images/workspace/green_icon.png",
               width: ScreenUtil().setWidth(35),
               height: ScreenUtil().setHeight(35),
             ),
@@ -443,7 +394,8 @@ class _HomeState extends State<Home> {
               width: ScreenUtil().setWidth(20),
             ),
             Text(
-              _printerStatusText,
+              _printerStatusText[
+                  Provider.of<PrinterIdProvider>(context).printStatus],
               maxLines: 2,
               style: TextStyle(
                   color: Colors.grey[700], fontSize: ScreenAdapter.size(20)),

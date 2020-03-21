@@ -134,31 +134,37 @@ class _PrintHistoryPageState extends State<PrintHistoryPage> {
           ),
           Column(
             children: <Widget>[
-              Row(children: <Widget>[
-                Container(
-                child: Text("print status:",
-                    style: TextStyle(
-                        fontSize: ScreenAdapter.size(30),
-                        fontWeight: FontWeight.bold)),
+              Row(
+                children: <Widget>[
+                  Container(
+                    child: Text("print status:",
+                        style: TextStyle(
+                            fontSize: ScreenAdapter.size(30),
+                            fontWeight: FontWeight.bold)),
+                  ),
+                  Container(
+                    child: Text(
+                      _printStatusList[Provider.of<PrintTaskProvider>(context)
+                          .taskList[index]['printstate']],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
-              Container(
-                child: Text(
-                  _printStatusList[Provider.of<PrintTaskProvider>(context)
-                      .taskList[index]['printstate']],
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Container(child:Text("失败原因:")),
-                Container(child:Text(Provider.of<PrintTaskProvider>(context)
-                      .taskList[index]['errormessage'])),
-              ],
-            ),
+              Provider.of<PrintTaskProvider>(context).taskList[index]
+                          ['printstate'] ==
+                      4
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Container(child: Text("失败原因:")),
+                        Container(
+                            child: Text(Provider.of<PrintTaskProvider>(context)
+                                .taskList[index]['errormessage'])),
+                      ],
+                    )
+                  : Container()
             ],
           ),
           // Column(

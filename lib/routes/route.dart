@@ -25,7 +25,6 @@ import '../utils/Storage.dart';
 
 //配置路由
 final routes = {
-  // '/': (context) => Storage.getString("JSESSIONID")==null?LogPage():NavigatorBarPage() ,
   '/': (context) => LogPage(),
   "/tabs": (BuildContext context) => NavigatorBarPage(),
   "/home": (BuildContext context) => Home(),

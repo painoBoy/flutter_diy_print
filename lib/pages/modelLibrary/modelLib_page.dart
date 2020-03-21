@@ -13,12 +13,16 @@ class ModelLibraryPage extends StatefulWidget {
   _ModelLibraryPageState createState() => _ModelLibraryPageState();
 }
 
-class _ModelLibraryPageState extends State<ModelLibraryPage> {
+class _ModelLibraryPageState extends State<ModelLibraryPage> with AutomaticKeepAliveClientMixin {
   List _modelList = [];
   int total_count = 0;
   List _modelJsonList = [];
   ModelLibraryModel res;
   List _swiperData = [];
+
+  
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {

@@ -3,6 +3,7 @@ import 'http_config.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:oktoast/oktoast.dart';
+
 class HttpRequest {
   static BaseOptions baseOptions = BaseOptions(
       baseUrl: Config.BASE_URL,
@@ -124,7 +125,7 @@ class NetRequest {
       receiveTimeout: 3000,
       headers: {});
 
-  static get(path, {params}) async {
+  static get(path, {params,context}) async {
     print("get数据请求开始===>url =${path}");
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -138,7 +139,9 @@ class NetRequest {
           await Dio().get(path, queryParameters: params, options: options);
       print("Response->>>>>>>>>>>");
       if(response.data["code"] == 401){
+        
         showToast("Please log in",position: ToastPosition.bottom,backgroundColor: Colors.grey[500]);
+        Navigator.pushNamedAndRemoveUntil(context, "/", (Route<dynamic> route) => false);
       }
       return response.data;
     } catch (e) {
@@ -158,6 +161,11 @@ class NetRequest {
       Response response = await Dio()
           .post(path, data: data, queryParameters: params, options: options);
       print("Response->>>>>>>>>>>");
+     if(response.data["code"] == 401){
+        
+        showToast("Please log in",position: ToastPosition.bottom,backgroundColor: Colors.grey[500]);
+        // Navigator.pushNamedAndRemoveUntil(context, "/", (Route<dynamic> route) => false);
+      }
       return response.data;
     } catch (e) {
       print(e);

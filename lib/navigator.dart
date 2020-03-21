@@ -13,18 +13,28 @@ class NavigatorBarPage extends StatefulWidget {
 
 class _NavigatorBarPageState extends State<NavigatorBarPage> {
   int _currentIndex = 0;
-  
+  PageController _pageController = PageController(initialPage: 0);
+  List<Widget> pageList = [
+    Home(
+      key: childKey,
+    ),
+    ModelLibraryPage(),
+    SettingPage()
+  ];
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-        SystemChrome.setPreferredOrientations(
+    SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   }
+
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.instance = ScreenUtil(width: 750, height: 1334,allowFontScaling: true)..init(context);
-   //抽屉Head
+    ScreenUtil.instance =
+        ScreenUtil(width: 750, height: 1334, allowFontScaling: true)
+          ..init(context);
+    //抽屉Head
     var drawerHeader = DrawerHeader(
       decoration: BoxDecoration(
         color: Color(0xFFFF8633),
@@ -38,7 +48,7 @@ class _NavigatorBarPageState extends State<NavigatorBarPage> {
       ),
     );
     return Scaffold(
-      drawer: Drawer(
+        drawer: Drawer(
           //左滑抽屉
           child: ListView(
             padding: EdgeInsets.zero, //去除左滑顶部padding
@@ -59,7 +69,6 @@ class _NavigatorBarPageState extends State<NavigatorBarPage> {
                 title: Text('Settings'),
               ),
               Divider(),
-
             ],
           ),
         ),
@@ -75,38 +84,45 @@ class _NavigatorBarPageState extends State<NavigatorBarPage> {
             createItem("account", "Account"),
           ],
           onTap: (int index) {
-            if(index ==0){
-              childKey.currentState.initTimer();
-              childKey.currentState.getPrinterInfo();
-            }else{
-              childKey.currentState.cancelTimer();
-              
-            }
-            if(mounted)setState(() {
-              _currentIndex = index;
-            });
+            // if(index ==0){
+            //   // childKey.currentState.initTimer();
+            //   // childKey.currentState.getPrinterInfo();
+            // }else{
+            //   // childKey.currentState.cancelTimer();
+
+            // }
+            _pageController.jumpToPage(index);
+            if (mounted)
+              setState(() {
+                _currentIndex = index;
+              });
           },
         ),
-        body: IndexedStack(
-          index: _currentIndex,
-          children: <Widget>[
-            Home(
-              key: childKey,
-            ),
-            ModelLibraryPage(),
-            SettingPage(),
-          ],
-        ));
+        body: PageView(
+          controller: _pageController,
+          children:pageList,
+        )
+        // IndexedStack(
+        //   index: _currentIndex,
+        //   children: <Widget>[
+        //     Home(
+        //       key: childKey,
+        //     ),
+        //     ModelLibraryPage(),
+        //     SettingPage(),
+        //   ],
+        // )
+        );
   }
 }
 
 BottomNavigationBarItem createItem(String iconName, String title) {
   return BottomNavigationBarItem(
-      icon: Image.asset("assets/images/tabbar/$iconName.png", width: ScreenUtil().setWidth(38)),
+      icon: Image.asset("assets/images/tabbar/$iconName.png",
+          width: ScreenUtil().setWidth(38)),
       activeIcon: Image.asset(
         "assets/images/tabbar/${iconName}_active.png",
-         width: ScreenUtil().setWidth(38),
+        width: ScreenUtil().setWidth(38),
       ),
       title: Text(title));
 }
-
