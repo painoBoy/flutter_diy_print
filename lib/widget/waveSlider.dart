@@ -12,7 +12,7 @@ class WaveSlider extends StatefulWidget {
   final callback2;
 
   WaveSlider(
-      {this.width = 240,
+      {this.width = 200,
       this.height = 120,
       this.color = Colors.black,
       this.callback1,
@@ -23,7 +23,7 @@ class WaveSlider extends StatefulWidget {
 }
 
 class _WaveSliderState extends State<WaveSlider> {
-  double _customInt = 240 / 100;
+  double _customInt = 200 / 100;
   double _dragPosition = 0;
   double _dragPercentage = 0;
   TextEditingController _tempController = TextEditingController();
@@ -36,22 +36,24 @@ class _WaveSliderState extends State<WaveSlider> {
     } else {
       newDragPosition = val.dx;
     }
+    Provider.of<NozzleWarm>(context).changeTemValue1(newDragPosition);
     setState(() {
       _dragPosition = newDragPosition;
       _dragPercentage = _dragPosition / widget.width;
     });
     int _tempData = (_dragPercentage * 100).round();
+   
     //传递父组件温度值
     widget.callback1(_tempData.toDouble());
     Provider.of<NozzleWarm>(context).changeNozzleWarm(_tempData.toDouble());
     _tempController.text =
         Provider.of<NozzleWarm>(context).nozzleWarm.round().toString();
     if ((_dragPercentage * 100).round() > 90) {
-      Provider.of<NozzleWarm>(context).changeTemValue1(220.0);
+      Provider.of<NozzleWarm>(context).changeTemValue1(180.0 - ScreenAdapter.width(20));
     } else if ((_dragPercentage * 100).round() < 5) {
       Provider.of<NozzleWarm>(context).changeTemValue1(5.0);
     } else {
-      Provider.of<NozzleWarm>(context).changeTemValue1(_customInt * Provider.of<NozzleWarm>(context).nozzleWarm);
+      Provider.of<NozzleWarm>(context).changeTemValue1(_dragPosition);
     }
   }
 
@@ -79,7 +81,8 @@ class _WaveSliderState extends State<WaveSlider> {
     } else if (val.toInt() > 90) {
       double _temp = double.parse(_tempController.text);
       Provider.of<NozzleWarm>(context).changeNozzleWarm(_temp);
-      Provider.of<NozzleWarm>(context).changeTemValue1(220.0);
+      Provider.of<NozzleWarm>(context).changeTemValue1(180.0);
+     
     } else if (val.toInt() < 2) {
       double _temp = double.parse(_tempController.text);
       Provider.of<NozzleWarm>(context).changeNozzleWarm(_temp);
@@ -88,7 +91,7 @@ class _WaveSliderState extends State<WaveSlider> {
       double _temp = double.parse(_tempController.text);
       Provider.of<NozzleWarm>(context).changeNozzleWarm(_temp);
       Provider.of<NozzleWarm>(context).changeTemValue1(_customInt * Provider.of<NozzleWarm>(context).nozzleWarm);
-      
+       
     }
   }
 
@@ -111,8 +114,7 @@ class _WaveSliderState extends State<WaveSlider> {
     // TODO: implement initState
     super.initState();
     new Future.delayed(Duration.zero, () {
-      _tempController.text =
-          Provider.of<NozzleWarm>(context).nozzleWarm.round().toString();
+      _tempController.text = Provider.of<NozzleWarm>(context).nozzleWarm.round().toString();
     });
   }
 
@@ -131,11 +133,13 @@ class _WaveSliderState extends State<WaveSlider> {
                   fit: BoxFit.fill)),
           child: Row(
             children: <Widget>[
-              Expanded(
-                child: Column(
+              // Expanded(
+              //   child: 
+                Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Container(
+                      width: 200,
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -155,7 +159,7 @@ class _WaveSliderState extends State<WaveSlider> {
                           _onDragEnd(context, end),
                       child: Stack(
                         children: <Widget>[
-                          Container(
+                          Container(                           
                               padding: EdgeInsets.all(10),
                               width: widget.width,
                               child: Image.asset(
@@ -163,7 +167,7 @@ class _WaveSliderState extends State<WaveSlider> {
                                 fit: BoxFit.cover,
                               )),
                           Positioned(
-                              left: Provider.of<NozzleWarm>(context).tempValue1,
+                              left: Provider.of<NozzleWarm>(context).tempValue1 ,
                               top: 10,
                               child: Container(
                                   width: ScreenAdapter.width(40),
@@ -175,12 +179,12 @@ class _WaveSliderState extends State<WaveSlider> {
                     )
                   ],
                 ),
-              ),
+              // ),
               Stack(
                 children: <Widget>[
                   Container(
                     margin: EdgeInsets.symmetric(horizontal: 3),
-                    width: ScreenAdapter.width(95),
+                    width: ScreenAdapter.width(105),
                     height: 40,
                     decoration: BoxDecoration(
                         border: Border.all(
@@ -218,8 +222,8 @@ class _WaveSliderState extends State<WaveSlider> {
                 },
                 child: Container(
                   margin: EdgeInsets.all(5),
-                  width: ScreenAdapter.width(80),
-                  height: ScreenAdapter.width(80),
+                  width: ScreenAdapter.width(65),
+                  height: ScreenAdapter.width(65),
                   child: Image.asset("assets/images/workspace/okBtn.png"),
                 ),
               ),

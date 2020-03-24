@@ -12,7 +12,7 @@ class HotBedSlider extends StatefulWidget {
   final callback2;
 
   HotBedSlider(
-      {this.width = 240,
+      {this.width = 200,
       this.height = 120,
       this.color = Colors.black,
       this.callback1,
@@ -23,7 +23,7 @@ class HotBedSlider extends StatefulWidget {
 }
 
 class _HotBedSliderState extends State<HotBedSlider> {
-  double _customInt = 240 / 100;
+  double _customInt = 200 / 100;
   double _dragPosition = 0;
   double _dragPercentage = 0;
   TextEditingController _tempController = TextEditingController();
@@ -36,23 +36,24 @@ class _HotBedSliderState extends State<HotBedSlider> {
     } else {
       newDragPosition = val.dx;
     }
+    Provider.of<NozzleWarm>(context).changeTemValue2(newDragPosition);
     setState(() {
       _dragPosition = newDragPosition;
       _dragPercentage = _dragPosition / widget.width;
     });
     int _tempData = (_dragPercentage * 100).round();
+   
     //传递父组件温度值
     widget.callback1(_tempData.toDouble());
     Provider.of<NozzleWarm>(context).changeHotBedWarm(_tempData.toDouble());
     _tempController.text =
         Provider.of<NozzleWarm>(context).hotBedWarm.round().toString();
     if ((_dragPercentage * 100).round() > 90) {
-      Provider.of<NozzleWarm>(context).changeTemValue2(220.0);
+      Provider.of<NozzleWarm>(context).changeTemValue2(180.0 - ScreenAdapter.width(20));
     } else if ((_dragPercentage * 100).round() < 5) {
       Provider.of<NozzleWarm>(context).changeTemValue2(5.0);
     } else {
-      Provider.of<NozzleWarm>(context).changeTemValue2(
-          _customInt * Provider.of<NozzleWarm>(context).hotBedWarm);
+      Provider.of<NozzleWarm>(context).changeTemValue2(_dragPosition);
     }
   }
 
@@ -80,7 +81,8 @@ class _HotBedSliderState extends State<HotBedSlider> {
     } else if (val.toInt() > 90) {
       double _temp = double.parse(_tempController.text);
       Provider.of<NozzleWarm>(context).changeHotBedWarm(_temp);
-      Provider.of<NozzleWarm>(context).changeTemValue2(220.0);
+      Provider.of<NozzleWarm>(context).changeTemValue2(180.0);
+     
     } else if (val.toInt() < 2) {
       double _temp = double.parse(_tempController.text);
       Provider.of<NozzleWarm>(context).changeHotBedWarm(_temp);
@@ -88,8 +90,8 @@ class _HotBedSliderState extends State<HotBedSlider> {
     } else {
       double _temp = double.parse(_tempController.text);
       Provider.of<NozzleWarm>(context).changeHotBedWarm(_temp);
-     Provider.of<NozzleWarm>(context).changeTemValue2(_customInt * Provider.of<NozzleWarm>(context).hotBedWarm);
-
+      Provider.of<NozzleWarm>(context).changeTemValue2(_customInt * Provider.of<NozzleWarm>(context).hotBedWarm);
+       
     }
   }
 
@@ -98,8 +100,7 @@ class _HotBedSliderState extends State<HotBedSlider> {
     // TODO: implement initState
     super.initState();
     new Future.delayed(Duration.zero, () {
-      _tempController.text =
-          Provider.of<NozzleWarm>(context).hotBedWarm.round().toString();
+      _tempController.text = Provider.of<NozzleWarm>(context).hotBedWarm.round().toString();
     });
   }
 
@@ -118,11 +119,13 @@ class _HotBedSliderState extends State<HotBedSlider> {
                   fit: BoxFit.fill)),
           child: Row(
             children: <Widget>[
-              Expanded(
-                child: Column(
+              // Expanded(
+              //   child: 
+                Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Container(
+                      width: 200,
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -142,7 +145,7 @@ class _HotBedSliderState extends State<HotBedSlider> {
                           _onDragEnd(context, end),
                       child: Stack(
                         children: <Widget>[
-                          Container(
+                          Container(                           
                               padding: EdgeInsets.all(10),
                               width: widget.width,
                               child: Image.asset(
@@ -150,7 +153,7 @@ class _HotBedSliderState extends State<HotBedSlider> {
                                 fit: BoxFit.cover,
                               )),
                           Positioned(
-                              left: Provider.of<NozzleWarm>(context).tempValue2,
+                              left: Provider.of<NozzleWarm>(context).tempValue2 ,
                               top: 10,
                               child: Container(
                                   width: ScreenAdapter.width(40),
@@ -162,12 +165,12 @@ class _HotBedSliderState extends State<HotBedSlider> {
                     )
                   ],
                 ),
-              ),
+              // ),
               Stack(
                 children: <Widget>[
                   Container(
                     margin: EdgeInsets.symmetric(horizontal: 3),
-                    width: ScreenAdapter.width(95),
+                    width: ScreenAdapter.width(105),
                     height: 40,
                     decoration: BoxDecoration(
                         border: Border.all(
@@ -205,8 +208,8 @@ class _HotBedSliderState extends State<HotBedSlider> {
                 },
                 child: Container(
                   margin: EdgeInsets.all(5),
-                  width: ScreenAdapter.width(80),
-                  height: ScreenAdapter.width(80),
+                  width: ScreenAdapter.width(65),
+                  height: ScreenAdapter.width(65),
                   child: Image.asset("assets/images/workspace/okBtn.png"),
                 ),
               ),

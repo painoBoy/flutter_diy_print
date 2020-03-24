@@ -63,6 +63,7 @@ class _HomeState extends State<Home> {
     isBindPrint();
     getUserBidPrinter(); //获取用户绑定的打印机
     // initTimer();
+    // checkPrintTaskStatus();
     print("home页面int");
   }
 
@@ -143,19 +144,14 @@ class _HomeState extends State<Home> {
 
   //获取打印机详情信息
   getPrinterInfo() async {
-    print(Config.BASE_URL +
-        printerInfo +
-        "/${Provider.of<PrinterIdProvider>(context).printId}");
-    var res = await NetRequest.get(Config.BASE_URL + printerInfo + "/${Provider.of<PrinterIdProvider>(context).printId}").then((res) {
+    print(Config.BASE_URL + printerInfo + "/${Provider.of<PrinterIdProvider>(context).printId}");
+    var res = await NetRequest.get(Config.BASE_URL +printerInfo + "/${Provider.of<PrinterIdProvider>(context).printId}").then((res) {
       if (res["code"] == 200) {
         print("res = ${res}");
         //修改打印机详情Provider
-        Provider.of<PrinterIdProvider>(context)
-            .changePrinterParams(res["data"]);
-        Provider.of<PrinterIdProvider>(context)
-            .changePrinterStatus(res["data"]["printState"]);
-        print(
-            "provider = ${Provider.of<PrinterIdProvider>(context).printerParams}");
+        Provider.of<PrinterIdProvider>(context).changePrinterParams(res["data"]);
+        Provider.of<PrinterIdProvider>(context).changePrinterStatus(res["data"]["printState"]);
+        print("provider = ${Provider.of<PrinterIdProvider>(context).printerParams}");
       }
     });
   }
@@ -204,7 +200,7 @@ class _HomeState extends State<Home> {
       //绑定打印机
       var params = {
         "macAddress": _barcode.toString().split(":")[2],
-        "customerName": "norman1"
+        "customerName": "Printer1"
       };
       var res =
           await NetRequest.post(Config.BASE_URL + bindPrint, data: params);
@@ -257,10 +253,15 @@ class _HomeState extends State<Home> {
                 onPressed: () {
                   _showAddMenu();
                 },
-                icon: Icon(
-                  Icons.add_circle,
-                  color: Colors.white,
-                ))
+                icon: _printerList.length == 0
+                    ? Icon(
+                        Icons.add_circle,
+                        color: Colors.white,
+                      )
+                    : Icon(
+                        Icons.swap_horiz,
+                        color: Colors.white,
+                      ))
           ],
           elevation: 0,
         ),
@@ -270,62 +271,65 @@ class _HomeState extends State<Home> {
               position: ToastPosition.bottom,
               backgroundColor: Colors.grey[600],
               child: SingleChildScrollView(
+                child: GestureDetector(
+                  onTap: () {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                  },
                   child: Column(
-                children: <Widget>[
-                  Container(
-                    width: ScreenUtil().width,
-                    height: ScreenUtil().setHeight(450),
-                    decoration: BoxDecoration(
-                      color: Color(0xFFF79432),
-                    ),
-                    child: Stack(children: [
+                    children: <Widget>[
                       Container(
-                        margin: EdgeInsets.all(20),
-                        width: ScreenUtil().setWidth(700),
-                        height: ScreenUtil().setHeight(420),
+                        width: ScreenUtil().width,
+                        height: ScreenUtil().setHeight(450),
                         decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(5)),
-                        child: Row(
-                          children: <Widget>[_banner(), _printStatus()],
+                          color: Color(0xFFF79432),
                         ),
+                        child: Stack(children: [
+                          Container(
+                            margin: EdgeInsets.all(20),
+                            width: ScreenUtil().setWidth(700),
+                            height: ScreenUtil().setHeight(420),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(5)),
+                            child: Row(
+                              children: <Widget>[_banner(), _printStatus()],
+                            ),
+                          ),
+                          Provider.of<PrinterIdProvider>(context).printStatus ==
+                                  0
+                              ? Container()
+                              : Positioned(
+                                  top: ScreenAdapter.height(60),
+                                  left: ScreenAdapter.width(50),
+                                  child: Container(
+                                      child: Text("printTask",
+                                          style: TextStyle(
+                                              fontSize: ScreenAdapter.size(20),
+                                              color: Color(0xFFF79432)))))
+                        ]),
                       ),
-                      Provider.of<PrinterIdProvider>(context).printStatus ==
-                                  0 ||
-                              Provider.of<PrinterIdProvider>(context)
-                                      .printStatus ==
-                                  1
-                          ? Container()
-                          : Positioned(
-                              top: ScreenAdapter.height(60),
-                              left: ScreenAdapter.width(50),
-                              child: Container(
-                                  child: Text("printTask",
-                                      style: TextStyle(
-                                          fontSize: ScreenAdapter.size(20),
-                                          color: Color(0xFFF79432)))))
-                    ]),
+                      Container(
+                        width: screenWidth,
+                        child: TabBarPrint(),
+                      ),
+                    ],
                   ),
-                  Container(
-                    width: screenWidth,
-                    child: TabBarPrint(),
-                  ),
-                ],
-              )),
+                ),
+              ),
             )));
   }
 
   //打印机Banner
   Widget _banner() {
-    print("provider percent = ${Provider.of<PrinterIdProvider>(context).printerParams['printProgress']}");
+    print(
+        "provider percent = ${Provider.of<PrinterIdProvider>(context).printerParams['printProgress']}");
     return Container(
       margin: EdgeInsets.fromLTRB(30, 10, 0, 0),
       decoration: BoxDecoration(color: Colors.white),
       child: Column(
         children: <Widget>[
-          
           Provider.of<PrinterIdProvider>(context).printerParams["printState"] ==
-                      0 
+                  0
               ? Container(
                   width: ScreenUtil().setWidth(380),
                   height: 20,
@@ -342,6 +346,7 @@ class _HomeState extends State<Home> {
                     percent: Provider.of<PrinterIdProvider>(context)
                             .printerParams['printProgress'] /
                         100,
+                    // percent: 0.1,
                     center: Text(
                       "${Provider.of<PrinterIdProvider>(context).printerParams['printProgress']}%",
                       style: TextStyle(color: Colors.white),
@@ -461,7 +466,7 @@ class _HomeState extends State<Home> {
                   )),
             ),
             SizedBox(
-              width: 120.0,
+              width: ScreenAdapter.width(240),
               height: 40.0,
               child: FlatButton.icon(
                   onPressed: _scan,
@@ -480,7 +485,7 @@ class _HomeState extends State<Home> {
                     overflow: TextOverflow.clip,
                   )),
             ),
-            Container(width: 120.0, height: 0.6),
+            Container(width: ScreenAdapter.width(240), height: 0.6),
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -508,7 +513,7 @@ class _HomeState extends State<Home> {
               item['parameter']['motorStroke']);
         },
         child: Container(
-            width: 120.0,
+            width: ScreenAdapter.width(240),
             height: 40.0,
             decoration: BoxDecoration(
               color: Colors.white,
@@ -524,6 +529,7 @@ class _HomeState extends State<Home> {
                   style: TextStyle(fontSize: 10),
                   textAlign: TextAlign.left,
                 ),
+                _currentPrinterId == item['id'] ? Icon(Icons.done) : Text('')
               ],
             )));
   }
@@ -557,71 +563,67 @@ class _TabBarPrintState extends State<TabBarPrint>
           children: <Widget>[
             Expanded(
                 flex: 1,
-                child: Material(
-                  color: Colors.white,
-                  child: TabBar(
-                    labelColor: Color(0xFFF79432),
-                    unselectedLabelColor: Colors.grey[600],
-                    // indicatorPadding:EdgeInsets.only(bottom: 40),
-                    //     EdgeInsets.symmetric(horizontal: ScreenUtil().setSp(20)),
-                    // labelStyle: TextStyle(fontSize: ScreenUtil().setSp(28), color: Colors.black),
-                    // labelStyle: TextStyle(color: Color(0xFFF79432),fontSize: ScreenUtil().setSp(28)),
-
-                    unselectedLabelStyle: TextStyle(
-                        fontSize: ScreenUtil().setSp(20),
-                        color: Colors.grey[600]),
-
-                    indicatorColor: Color(0xFFF79432),
-                    // indicator: UnderlineTabIndicator(
-                    //   insets: EdgeInsets.symmetric(horizontal: 80)
-                    // ),
-                    // labelPadding: EdgeInsets.fromLTRB(20, ScreenUtil().setHeight(40), 0, ScreenUtil().setHeight(40)),
-                    indicatorSize: TabBarIndicatorSize.label,
-                    ////指示器大小的计算方式，TabBarIndicatorSize.tab：跟每个tab等宽，
-                    tabs: <Widget>[
-                      Container(
-                        height: ScreenAdapter.height(200),
-                        child: Tab(
-                          icon: Image.asset(
-                            "assets/images/workspace/warm_tab.png",
-                            width: ScreenUtil().setWidth(100),
-                            height: ScreenUtil().setHeight(90),
+                child: GestureDetector(
+                  onTap: () {
+                    // 触摸收起键盘
+                    FocusScope.of(context).requestFocus(FocusNode());
+                  },
+                  child: Material(
+                    color: Colors.white,
+                    child: TabBar(
+                      labelColor: Color(0xFFF79432),
+                      unselectedLabelColor: Colors.grey[600],
+                      unselectedLabelStyle: TextStyle(
+                          fontSize: ScreenUtil().setSp(20),
+                          color: Colors.grey[600]),
+                      indicatorColor: Color(0xFFF79432),
+                      indicatorSize: TabBarIndicatorSize.label,
+                      ////指示器大小的计算方式，TabBarIndicatorSize.tab：跟每个tab等宽，
+                      tabs: <Widget>[
+                        Container(
+                          height: ScreenAdapter.height(200),
+                          child: Tab(
+                            icon: Image.asset(
+                              "assets/images/workspace/warm_tab.png",
+                              width: ScreenUtil().setWidth(100),
+                              height: ScreenUtil().setHeight(90),
+                            ),
+                            text: "喷嘴温度",
                           ),
-                          text: "喷嘴温度",
                         ),
-                      ),
-                      Container(
-                          height: ScreenAdapter.height(200),
-                          child: Tab(
-                            icon: Image.asset(
-                              "assets/images/workspace/hotbed_tab.png",
-                              width: ScreenUtil().setWidth(100),
-                              height: ScreenUtil().setHeight(90),
-                            ),
-                            text: "热床温度",
-                          )),
-                      Container(
-                          height: ScreenAdapter.height(200),
-                          child: Tab(
-                            icon: Image.asset(
-                              "assets/images/workspace/move_shaft_tab.png",
-                              width: ScreenUtil().setWidth(100),
-                              height: ScreenUtil().setHeight(90),
-                            ),
-                            text: "移动轴",
-                          )),
-                      Container(
-                          height: ScreenAdapter.height(200),
-                          child: Tab(
-                            icon: Image.asset(
-                              "assets/images/workspace/material_tab.png",
-                              width: ScreenUtil().setWidth(100),
-                              height: ScreenUtil().setHeight(90),
-                            ),
-                            text: "耗材",
-                          )),
-                    ],
-                    controller: _controller,
+                        Container(
+                            height: ScreenAdapter.height(200),
+                            child: Tab(
+                              icon: Image.asset(
+                                "assets/images/workspace/hotbed_tab.png",
+                                width: ScreenUtil().setWidth(100),
+                                height: ScreenUtil().setHeight(90),
+                              ),
+                              text: "热床温度",
+                            )),
+                        Container(
+                            height: ScreenAdapter.height(200),
+                            child: Tab(
+                              icon: Image.asset(
+                                "assets/images/workspace/move_shaft_tab.png",
+                                width: ScreenUtil().setWidth(100),
+                                height: ScreenUtil().setHeight(90),
+                              ),
+                              text: "移动轴",
+                            )),
+                        Container(
+                            height: ScreenAdapter.height(200),
+                            child: Tab(
+                              icon: Image.asset(
+                                "assets/images/workspace/material_tab.png",
+                                width: ScreenUtil().setWidth(100),
+                                height: ScreenUtil().setHeight(90),
+                              ),
+                              text: "耗材",
+                            )),
+                      ],
+                      controller: _controller,
+                    ),
                   ),
                 )),
             Expanded(

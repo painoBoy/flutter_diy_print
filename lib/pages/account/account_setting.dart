@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../utils/ScreenAdapter.dart';
 import '../../network/api.dart';
 import '../../network/http_config.dart';
@@ -68,6 +69,8 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
                   onPressed: () async{
                     var res = await NetRequest.get(Config.BASE_URL + logout);
                     if (res["code"] == 200) {
+                       SharedPreferences prefs = await SharedPreferences.getInstance();
+                       prefs.clear();
                       Navigator.pushNamedAndRemoveUntil(
                           context, "/", (Route<dynamic> route) => false);
                     }

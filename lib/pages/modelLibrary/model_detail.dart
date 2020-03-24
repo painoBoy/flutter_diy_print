@@ -23,11 +23,13 @@ class ModelDetailPage extends StatefulWidget {
 
 class _ModelDetailPageState extends State<ModelDetailPage> {
   bool _isCollection = false;
+  bool _isTooSmall = false; // 模型过小则不能打印
   Map _modelData;
   int _currentIndex = 0;
   Timer _timer;
   List _favorite = [];
   bool isLoading = false;
+  int _downLoadProgress = 0;
   List printTaskStats = [
     "all",
     "Waiting to print",
@@ -97,6 +99,7 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
   _printModel(fileName, modelImageUrl) async {
     if (mounted)
       setState(() {
+        _downLoadProgress = 0;
         isLoading = true;
       });
     //判断打印机状态 为1时才能打印
@@ -132,6 +135,12 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
 
         if (result["code"] == 200) {
           print("progress = ${result["data"]["progress"]}");
+
+          if (_downLoadProgress != result["data"]["progress"]) {
+            setState(() {
+              _downLoadProgress = result["data"]["progress"];
+            });
+          }
           if (result["data"]["progress"] == -1) {
             if (mounted)
               setState(() {
@@ -162,7 +171,17 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
                 break; // 如果模型条件有不满足打印条件 立即跳出
               }
             }
-            if (isCanPrint) {
+            //遍历x、y、z轴是否有小于40mm 有则不能打印
+            for (int i = 0; i < _newtempMotorStroke.length; i++) {
+              if (result["data"]["modelSizeInfos"][0]["modelSize"][i] > 40) {
+                _isTooSmall = false;
+              } else {
+                _isTooSmall = true;
+                break; // 如果模型条件有不满足打印条件 立即跳出
+              }
+            }
+
+            if (isCanPrint && !_isTooSmall) {
               print("能打印了");
               Map _taskParams = {
                 "printerId": prefs.getInt("selectedPrintId"),
@@ -188,35 +207,31 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
                     backgroundColor: Colors.grey[600]);
                 Provider.of<PrinterIdProvider>(context).changePrintTaskCode(
                     res['data']['printTaskList'][0]['taskcode']);
-                Navigator.pushNamedAndRemoveUntil(
-                    context, "/tabs", (Route<dynamic> route) => false);
-                //通过打印任务code 查询打印状态
-                // var _printStatusRes = await NetRequest.get(Config.BASE_URL +
-                //     "printTask/${res['data']['printTaskList'][0]['taskcode']}");
-                // print(_printStatusRes);
-                // if (_printStatusRes["code"] == 200) {
-                //   showToast(
-                //       printTaskStats[_printStatusRes["data"]["printstate"]],
-                //       position: ToastPosition.bottom,
-                //       backgroundColor: Colors.grey[600]);
-                // } else {
-                //   showToast(_printStatusRes["msg"],
-                //       position: ToastPosition.bottom,
-                //       backgroundColor: Colors.grey[600]);
-                // }
+                Provider.of<PrinterIdProvider>(context)
+                    .changePrinterTaskStatus(1);
+                Navigator.pushNamedAndRemoveUntil(context, "/tabs",
+                    (Route route) => route.settings.name == '/');
               } else {
                 showToast(res["msg"],
                     position: ToastPosition.bottom,
                     backgroundColor: Colors.grey[600]);
               }
-            } else {
+            } else if (!isCanPrint) {
               if (mounted)
                 setState(() {
                   isLoading = false;
                 });
               showToast("The Model size is too large",
                   backgroundColor: Colors.grey[600]);
+            } else if (_isTooSmall) {
+              if (mounted)
+                setState(() {
+                  isLoading = false;
+                });
+              showToast("The Model size is too Small",
+                  backgroundColor: Colors.grey[600]);
             }
+            print("太小了吗?${_isTooSmall}");
             print("打印机=====> ${_newtempMotorStroke}");
             print(
                 "模型大小=====> ${result["data"]["modelSizeInfos"][0]["modelSize"]}");
@@ -315,7 +330,8 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
           body: _modelData != null
               ? ProgressDialog(
                   loading: isLoading,
-                  msg: 'Model is Downloading...',
+                  msg:
+                      'The model has been downloaded by ${_downLoadProgress}%...',
                   child: ListView(children: <Widget>[_banner()]
                       // physics: NeverScrollableScrollPhysics(),
                       ))

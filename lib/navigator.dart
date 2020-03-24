@@ -5,7 +5,8 @@ import './pages/workspace/home_page.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import './pages/provider/printCommand.dart';
 class NavigatorBarPage extends StatefulWidget {
   @override
   _NavigatorBarPageState createState() => _NavigatorBarPageState();
@@ -27,6 +28,7 @@ class _NavigatorBarPageState extends State<NavigatorBarPage> {
     super.initState();
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    print("tabs init");
   }
 
   @override
@@ -84,12 +86,11 @@ class _NavigatorBarPageState extends State<NavigatorBarPage> {
             createItem("account", "Account"),
           ],
           onTap: (int index) {
-            // if(index ==0){
+            // if (index == 0) {
             //   // childKey.currentState.initTimer();
             //   // childKey.currentState.getPrinterInfo();
-            // }else{
-            //   // childKey.currentState.cancelTimer();
-
+            // // } else {
+            // //   childKey.currentState.cancelTimer();
             // }
             _pageController.jumpToPage(index);
             if (mounted)
@@ -99,8 +100,9 @@ class _NavigatorBarPageState extends State<NavigatorBarPage> {
           },
         ),
         body: PageView(
+          physics: NeverScrollableScrollPhysics(),
           controller: _pageController,
-          children:pageList,
+          children: pageList,
         )
         // IndexedStack(
         //   index: _currentIndex,

@@ -96,7 +96,7 @@ class _NozzleWidgetState extends State<NozzleWidget> {
           ),
           RichText(
             text: TextSpan(
-                text: "当前温度: ",
+                text: "设定温度: ",
                 style: TextStyle(color: Colors.black),
                 children: <TextSpan>[
                   TextSpan(
@@ -105,7 +105,17 @@ class _NozzleWidgetState extends State<NozzleWidget> {
                       style: TextStyle(color: Color(0xFFF79432)))
                 ]),
           ),
-          Text("          ")
+          RichText(
+            text: TextSpan(
+                text: "当前温度: ",
+                style: TextStyle(color: Colors.black),
+                children: <TextSpan>[
+                  TextSpan(
+                      text:
+                          "0°C",
+                      style: TextStyle(color: Color(0xFFF79432)))
+                ]),
+          ),
         ],
       ),
     );

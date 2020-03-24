@@ -36,17 +36,7 @@ class _LogPageState extends State<LogPage> {
       "username": _userNameController.text.trim(),
       "password": _passWordController.text.trim()
     };
-    // HttpRequest.request(BASE_URL + login, method: "post", params: params)
-    //     .then((res) {
-    //   print(params);
-    //   print(res.data.toString());
-    //   print(BASE_URL + login);
-
-    //   setState(() {
-    //     isShowLoading = false;
-    //   });
-    //   // Navigator.pushReplacementNamed(context, "/tabs");
-    // });
+  
     var dio = Dio();
     Response response = await dio.post(Config.BASE_URL + login, data: params);
     // // print(response.headers["set-cookie"].toString().split(";linshu")[0].split("=")[1]);
@@ -57,6 +47,7 @@ class _LogPageState extends State<LogPage> {
           isShowLoading = false;
         });
       if (response.data["code"] == 200) {
+        await Storage.clear();
         Storage.setString("userId", response.data["data"]["userId"]);
         Storage.setString(
             "JSESSIONID",

@@ -3,6 +3,7 @@ import 'http_config.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:oktoast/oktoast.dart';
+import '../utils/router.dart';
 
 class HttpRequest {
   static BaseOptions baseOptions = BaseOptions(
@@ -125,7 +126,7 @@ class NetRequest {
       receiveTimeout: 3000,
       headers: {});
 
-  static get(path, {params,context}) async {
+  static get(path, {params, context}) async {
     print("get数据请求开始===>url =${path}");
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -138,10 +139,11 @@ class NetRequest {
       Response response =
           await Dio().get(path, queryParameters: params, options: options);
       print("Response->>>>>>>>>>>");
-      if(response.data["code"] == 401){
-        
-        showToast("Please log in",position: ToastPosition.bottom,backgroundColor: Colors.grey[500]);
-        Navigator.pushNamedAndRemoveUntil(context, "/", (Route<dynamic> route) => false);
+      if (response.data["code"] == 401) {
+        showToast("Please log in",
+            position: ToastPosition.bottom, backgroundColor: Colors.grey[500]);
+        Router.navigatorKey.currentState
+            .pushNamedAndRemoveUntil("/", ModalRoute.withName("/"));
       }
       return response.data;
     } catch (e) {
@@ -161,10 +163,12 @@ class NetRequest {
       Response response = await Dio()
           .post(path, data: data, queryParameters: params, options: options);
       print("Response->>>>>>>>>>>");
-     if(response.data["code"] == 401){
-        
-        showToast("Please log in",position: ToastPosition.bottom,backgroundColor: Colors.grey[500]);
+      if (response.data["code"] == 401) {
+        showToast("Please log in",
+            position: ToastPosition.bottom, backgroundColor: Colors.grey[500]);
         // Navigator.pushNamedAndRemoveUntil(context, "/", (Route<dynamic> route) => false);
+        Router.navigatorKey.currentState
+            .pushNamedAndRemoveUntil("/", ModalRoute.withName("/"));
       }
       return response.data;
     } catch (e) {
