@@ -18,7 +18,7 @@ environment:
 
 dependencies:
   flutter:
-    sdk: flutter
+    sdk: flutter 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -35,9 +35,13 @@ dependencies:
   oktoast: ^2.3.0 #提示弹框
   flutter_swiper: ^1.1.6 #轮播 
   # image_picker: ^0.6.3+4
-  transparent_image: ^1.0.0 #图片加载占位符
+  transparent_image: ^1.0.0 #图片加载占位符 
   flutter_easyrefresh: ^2.0.9 #上拉（下拉）刷新
   flutter_facebook_login: ^1.2.0
+  flutter_localizations: #多语言
+    sdk: flutter
+  flutter_datetime_picker: ^1.3.5 #日期选择器
+  gender_selection: ^1.0.0 #男女选择
 dev_dependencies:
   flutter_test:   
     sdk: flutter 

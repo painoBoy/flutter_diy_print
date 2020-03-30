@@ -22,7 +22,7 @@ class ModelCollectionPage extends StatefulWidget {
 }
 
 class _ModelCollectionPageState extends State<ModelCollectionPage> {
-  List _userFavoriteModelList = [];
+  List _userFavoriteModelList;
   List _modelList = [];
   @override
   void initState() {
@@ -39,17 +39,13 @@ class _ModelCollectionPageState extends State<ModelCollectionPage> {
         setState(() {
           _userFavoriteModelList = res["data"];
         });
-      // for (int i = 0; i < _userFavoriteModelList.length; i++) {
-      //   Response response = await Dio().get(
-      //       "https://www.myminifactory.com/api/v2/objects/${_userFavoriteModelList[i]}?page=1&per_page=8&key=3a934958-fd58-4a42-ae15-7da531a0cd80");
-      //   print(response.data[i]["name"]);
-      // }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     ScreenAdapter.init(context);
+    print("_userFavoriteModelList = $_userFavoriteModelList");
     return AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
         child: Scaffold(
@@ -66,60 +62,95 @@ class _ModelCollectionPageState extends State<ModelCollectionPage> {
                 style: TextStyle(color: Colors.white),
               ),
             ),
-            body: ListView(
-              children: <Widget>[
-                _collectList(),
-              ],
-            )));
+            body: _userFavoriteModelList == null
+                ? loadItem()
+                : ListView(
+                    children: _userFavoriteModelList.map((val) {
+                    return _item(val);
+                  }).toList())));
   }
 
-  Widget _collectList() {
+  Widget loadItem() {
     return Container(
+      width: ScreenAdapter.getScreenWidth(),
+      height: ScreenAdapter.height(150),
       padding: EdgeInsets.only(bottom: ScreenAdapter.height(0)),
       child: Card(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Container(
-              width: ScreenAdapter.width(220),
-              height: ScreenAdapter.height(140),
-              child: FadeInImage.memoryNetwork(
-                placeholder: kTransparentImage,
-                image:
-                    'https://cdn.myminifactory.com/assets/object-assets/5c2cda23b1faf/images/230X230-p1060757.JPG',
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.fill,
-              ),
-            ),
+                width: ScreenAdapter.width(220),
+                height: ScreenAdapter.height(140),
+                color: Colors.grey[400]),
             Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
                 Container(
-                  child: Text("wiget's name",
-                      style: TextStyle(
-                          fontSize: ScreenAdapter.size(40),
-                          fontWeight: FontWeight.bold)),
+                  width: ScreenAdapter.width(160),
+                  height: ScreenAdapter.height(40),
+                  color: Colors.grey[400],
                 ),
+                SizedBox(height: 5),
                 Container(
-                  child: Text("收藏日期: 2018-12-03"),
+                  width: ScreenAdapter.width(240),
+                  height: ScreenAdapter.height(40),
+                  color: Colors.grey[400],
                 ),
               ],
             ),
-            Container(
-              margin: EdgeInsets.only(right: ScreenAdapter.width(20)),
-              width: ScreenAdapter.width(155),
-              alignment: Alignment.center,
-              height: ScreenAdapter.height(55),
-              decoration: BoxDecoration(
-                  color: Color(0xFFF79432),
-                  borderRadius: BorderRadius.circular(10)),
-              child: Text(
-                "Print",
-                style: TextStyle(
-                    color: Colors.white, fontSize: ScreenAdapter.size(35)),
-              ),
-            ),
+            Text("")
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _item(val) {
+    return Container(
+      padding: EdgeInsets.only(bottom: ScreenAdapter.height(0)),
+      child: InkWell(
+        onTap: () {
+          Navigator.pushNamed(context, "/modelDetail",
+              arguments: {"objId": val["id"]});
+        },
+        child: Card(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Container(
+                width: ScreenAdapter.width(220),
+                height: ScreenAdapter.height(140),
+                child: FadeInImage.memoryNetwork(
+                  placeholder: kTransparentImage,
+                  image: '${val["icon"]}',
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.fill,
+                ),
+              ),
+              Column(
+                children: <Widget>[
+                  Container(
+                    child: Text(
+                      "${val["name"]}",
+                      style: TextStyle(
+                          fontSize: ScreenAdapter.size(28),
+                          fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  Container(
+                    child: Text(
+                      "Favorite date: ${val["collectionTime"]}",
+                      style: TextStyle(fontSize: ScreenAdapter.size(25)),
+                    ),
+                  ),
+                ],
+              ),
+              Text("")
+            ],
+          ),
         ),
       ),
     );

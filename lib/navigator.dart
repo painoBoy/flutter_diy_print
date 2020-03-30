@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import './pages/provider/printCommand.dart';
+import './generated/i18n.dart';
 class NavigatorBarPage extends StatefulWidget {
   @override
   _NavigatorBarPageState createState() => _NavigatorBarPageState();
@@ -14,14 +15,7 @@ class NavigatorBarPage extends StatefulWidget {
 
 class _NavigatorBarPageState extends State<NavigatorBarPage> {
   int _currentIndex = 0;
-  PageController _pageController = PageController(initialPage: 0);
-  List<Widget> pageList = [
-    Home(
-      key: childKey,
-    ),
-    ModelLibraryPage(),
-    SettingPage()
-  ];
+ 
   @override
   void initState() {
     // TODO: implement initState
@@ -81,39 +75,36 @@ class _NavigatorBarPageState extends State<NavigatorBarPage> {
           type: BottomNavigationBarType.fixed,
           // selectedItemColor:Colors.green,
           items: [
-            createItem("workspace", "Workspace"),
-            createItem("model_lib", "Model Lib"),
-            createItem("account", "Account"),
+            createItem("workspace", "${S.of(context).app_navigationBar_workspace}"),
+            createItem("model_lib", "${S.of(context).app_navigationBar_modelLib}"),
+            createItem("account", "${S.of(context).app_navigationBar_account}"),
           ],
           onTap: (int index) {
-            // if (index == 0) {
-            //   // childKey.currentState.initTimer();
-            //   // childKey.currentState.getPrinterInfo();
-            // // } else {
-            // //   childKey.currentState.cancelTimer();
-            // }
-            _pageController.jumpToPage(index);
+            if (index == 0) {
+              // childKey.currentState.initTimer();
+              childKey.currentState.getPrinterInfo();
+            // } else {
+            //   childKey.currentState.cancelTimer();
+            }
+            // _pageController.jumpToPage(index);
             if (mounted)
               setState(() {
                 _currentIndex = index;
               });
           },
         ),
-        body: PageView(
-          physics: NeverScrollableScrollPhysics(),
-          controller: _pageController,
-          children: pageList,
+        body: 
+      
+        IndexedStack(
+          index: _currentIndex,
+          children: <Widget>[
+            Home(
+              key: childKey,
+            ),
+            ModelLibraryPage(),
+            SettingPage(),
+          ],
         )
-        // IndexedStack(
-        //   index: _currentIndex,
-        //   children: <Widget>[
-        //     Home(
-        //       key: childKey,
-        //     ),
-        //     ModelLibraryPage(),
-        //     SettingPage(),
-        //   ],
-        // )
         );
   }
 }

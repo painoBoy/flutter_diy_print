@@ -1,3 +1,5 @@
+import 'package:flutter_diy_print/pages/workspace/home_page.dart';
+
 import '../../network/api.dart';
 import '../../network/http_config.dart';
 import '../../network/http_request.dart';
@@ -56,12 +58,15 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
     if (res["data"] != null) {
       _favorite = res["data"];
       print("_favorite=${_favorite}");
-      if (res['data'].contains(widget.arguments["objId"].toString())) {
-        print("有");
-        if (mounted) {
-          setState(() {
-            _isCollection = true;
-          });
+      for (int i = 0; i < res["data"].length; i++) {
+        if (res["data"][i]["id"] == widget.arguments["objId"].toString()) {
+          print("有");
+          if (mounted) {
+            setState(() {
+              _isCollection = true;
+            });
+          }
+          break;
         }
       }
     }
@@ -134,7 +139,7 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
         print(Config.BASE_URL + checkModel + "/${modelPrintId}");
 
         if (result["code"] == 200) {
-          print("progress = ${result["data"]["progress"]}");
+          print("progress = ${result["data"]}");
 
           if (_downLoadProgress != result["data"]["progress"]) {
             setState(() {
@@ -201,16 +206,23 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
                   isLoading = false;
                 });
               if (res["code"] == 200) {
-                //存储当前打印任务code 至workspace查询
-                showToast("The print task was initiated successfully",
-                    position: ToastPosition.bottom,
-                    backgroundColor: Colors.grey[600]);
-                Provider.of<PrinterIdProvider>(context).changePrintTaskCode(
-                    res['data']['printTaskList'][0]['taskcode']);
-                Provider.of<PrinterIdProvider>(context)
-                    .changePrinterTaskStatus(1);
-                Navigator.pushNamedAndRemoveUntil(context, "/tabs",
-                    (Route route) => route.settings.name == '/');
+                if (res["data"]["started"]) {
+                  //存储当前打印任务code 至workspace查询
+                  showToast("The print task was initiated successfully",
+                      position: ToastPosition.bottom,
+                      backgroundColor: Colors.grey[600]);
+                  Provider.of<PrinterIdProvider>(context).changePrintTaskCode(
+                      res['data']['printTaskList'][0]['taskcode']);
+                  Provider.of<PrinterIdProvider>(context)
+                      .changePrinterTaskStatus(1); // 通知Provider有打印任务
+                  Navigator.pushNamedAndRemoveUntil(context, "/tabs",
+                      (Route route) => route.settings.name == '/');
+                  childKey.currentState.checkPrintTaskStatus();
+                } else {
+                  showToast(res["data"]["printTaskList"]["errormessage"],
+                      position: ToastPosition.bottom,
+                      backgroundColor: Colors.grey[600]);
+                }
               } else {
                 showToast(res["msg"],
                     position: ToastPosition.bottom,
@@ -251,27 +263,45 @@ class _ModelDetailPageState extends State<ModelDetailPage> {
 
   //收藏
   _collection() async {
-    if (mounted) {
-      setState(() {
-        _isCollection = !_isCollection;
-      });
-    }
-    if (_favorite.contains(widget.arguments["objId"].toString())) {
+    if (_modelData == null) return;
+
+    if (_isCollection) {
       var res = await NetRequest.get(
-          Config.BASE_URL + favorite + "/0/${widget.arguments["objId"]}");
-      if (res['code'] == 200) {
-        print("取消收藏成功");
-        showToast("Cancel the collection",
+          Config.BASE_URL + unFavorite + "/${_modelData['id']}");
+      if (res["code"] == 200) {
+        if (mounted) {
+          setState(() {
+            _isCollection = !_isCollection;
+          });
+        }
+        print("取消收藏");
+        showToast("Successfully uncollected",
             position: ToastPosition.top, backgroundColor: Colors.grey[500]);
       } else {
-        print(res['msg']);
+        showToast(res["msg"],
+            position: ToastPosition.top, backgroundColor: Colors.grey[500]);
       }
     } else {
-      var res = await NetRequest.get(
-          Config.BASE_URL + favorite + "/1/${widget.arguments["objId"]}");
+      Map params = {
+        "id": _modelData["id"].toString(),
+        "icon": _modelData["images"][0]["thumbnail"]["url"],
+        "name": _modelData["name"].length > 30
+            ? _modelData["name"].toString().substring(0, 30)
+            : _modelData["name"],
+        "desc": _modelData["description"].toString().length > 30
+            ? _modelData["description"].toString().substring(0, 30)
+            : _modelData["description"].toString()
+      };
+      var res = await NetRequest.post(Config.BASE_URL + favorite, data: params);
       if (res['code'] == 200) {
+        if (mounted) {
+          setState(() {
+            _isCollection = !_isCollection;
+          });
+        }
         print("收藏成功");
-        showToast("Collection of success", backgroundColor: Colors.grey[500]);
+        showToast("Successful collection",
+            position: ToastPosition.top, backgroundColor: Colors.grey[500]);
       } else {
         print(res['msg']);
       }

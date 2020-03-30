@@ -11,7 +11,7 @@ import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 // import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:convert';
 import '../../utils/Storage.dart';
-
+import '../../generated/i18n.dart';
 class LogPage extends StatefulWidget {
   @override
   _LogPageState createState() => _LogPageState();
@@ -175,7 +175,7 @@ class _LogPageState extends State<LogPage> {
                             controller: _userNameController,
                             decoration: InputDecoration(
                                 counterText: "",
-                                hintText: "Please Enter you Account",
+                                hintText: "${S.of(context).app_login_account}",
                                 hintStyle: TextStyle(color: Colors.grey[400]),
                                 border: InputBorder.none,
                                 icon: Icon(
@@ -201,7 +201,7 @@ class _LogPageState extends State<LogPage> {
                             decoration: InputDecoration(
                                 counterText: "",
                                 hintStyle: TextStyle(color: Colors.grey[400]),
-                                hintText: "Please Enter you Password",
+                                hintText: "${S.of(context).app_login_pwd}",
                                 border: InputBorder.none,
                                 icon: Icon(
                                   Icons.vpn_key,
@@ -247,7 +247,7 @@ class _LogPageState extends State<LogPage> {
                               width: ScreenUtil.getInstance().setWidth(580),
                               height: ScreenUtil.getInstance().setHeight(85),
                               child: Text(
-                                "LOGIN",
+                                "${S.of(context).app_login_Login}",
                                 style: TextStyle(color: Colors.white),
                               ),
                             )),
@@ -265,7 +265,7 @@ class _LogPageState extends State<LogPage> {
                                   Navigator.pushNamed(context, "register");
                                 },
                                 child: Text(
-                                  "Sign up",
+                                  "${S.of(context).app_login_signUp}",
                                   style: TextStyle(
                                       color: Color(0xFFF79432),
                                       fontSize: ScreenUtil().setSp(28)),
@@ -276,7 +276,7 @@ class _LogPageState extends State<LogPage> {
                                   Navigator.pushNamed(
                                       context, "/forgotpassword");
                                 },
-                                child: Text("Forgot Password?",
+                                child: Text("${S.of(context).app_login_forgotPwd}?",
                                     style: TextStyle(
                                         color: Color(0xFF2681FD),
                                         fontSize: ScreenUtil().setSp(28))),
@@ -301,7 +301,7 @@ class _LogPageState extends State<LogPage> {
                                     BoxDecoration(color: Colors.grey[300]),
                               ),
                               Text(
-                                "Or",
+                                "${S.of(context).app_login_others}",
                                 style: TextStyle(color: Color(0xFF9aacbd)),
                               ),
                               Container(

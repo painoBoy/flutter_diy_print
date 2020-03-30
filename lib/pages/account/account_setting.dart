@@ -8,7 +8,7 @@ import '../../network/http_config.dart';
 import '../../network/http_request.dart';
 import 'package:oktoast/oktoast.dart';
 import 'dart:io';
-
+import '../../generated/i18n.dart';
 class AccountSettingPage extends StatefulWidget {
   @override
   _AccountSettingPageState createState() => _AccountSettingPageState();
@@ -34,7 +34,7 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
               Navigator.pop(context);
             }),
         title: Text(
-          "Setting",
+          "${S.of(context).app_setting_title}",
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
@@ -55,17 +55,17 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
           barrierDismissible: false, // user must tap button!
           builder: (BuildContext context) {
             return CupertinoAlertDialog(
-              title: Text('Are you sure you want to log out ?'),
+              title: Text('${S.of(context).app_setting_SignOutNotice} ?'),
               content: Text(''),
               actions: <Widget>[
                 CupertinoDialogAction(
-                  child: Text('Cancel'),
+                  child: Text('${S.of(context).app_setting_SignOutCancel}'),
                   onPressed: () {
                     Navigator.of(context).pop("0");
                   },
                 ),
                 CupertinoDialogAction(
-                  child: Text('OK'),
+                  child: Text('${S.of(context).app_setting_SignOutOK}'),
                   onPressed: () async{
                     var res = await NetRequest.get(Config.BASE_URL + logout);
                     if (res["code"] == 200) {
@@ -87,7 +87,7 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: Text(
-                "Are you sure you want to log out ?",
+                "${S.of(context).app_setting_SignOutNotice} ?",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               content: SingleChildScrollView(
@@ -100,7 +100,7 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
               actions: <Widget>[
                 FlatButton(
                   child: Text(
-                    'Cancel',
+                    '${S.of(context).app_setting_SignOutCancel}',
                     style: TextStyle(color: Colors.grey[600]),
                   ),
                   onPressed: () {
@@ -108,7 +108,7 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
                   },
                 ),
                 FlatButton(
-                  child: Text('OK'),
+                  child: Text('${S.of(context).app_setting_SignOutOK}'),
                   onPressed: () async {
                     var res = await NetRequest.get(Config.BASE_URL + logout);
                     if (res["code"] == 200) {
@@ -135,14 +135,14 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
             decoration: BoxDecoration(
                 // color: Colors.white,
                 ),
-            child: Text("General", style: TextStyle(color: Colors.grey[400]))),
+            child: Text("${S.of(context).app_setting_General}", style: TextStyle(color: Colors.grey[400]))),
         Container(
           decoration: BoxDecoration(color: Colors.white),
           child: Column(
             children: <Widget>[
               Container(
                 child: ListTile(
-                  title: Text('Notification'),
+                  title: Text('${S.of(context).app_setting_notice}'),
                   trailing: CupertinoSwitch(
                     value: _lights,
                     onChanged: (bool value) {
@@ -162,14 +162,14 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
               Container(
                 child: ListTile(
                     onTap: () {},
-                    title: Text('Clear Cache'),
+                    title: Text('${S.of(context).app_setting_cache}'),
                     trailing: Icon(Icons.keyboard_arrow_right)),
               ),
               Divider(),
               Container(
                 child: ListTile(
                     onTap: () {},
-                    title: Text('About'),
+                    title: Text('${S.of(context).app_setting_about}'),
                     trailing: Icon(Icons.keyboard_arrow_right)),
               ),
             ],
@@ -181,7 +181,7 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
             decoration: BoxDecoration(
                 // color: Colors.white,
                 ),
-            child: Text("Account", style: TextStyle(color: Colors.grey[400]))),
+            child: Text("${S.of(context).app_setting_about}", style: TextStyle(color: Colors.grey[400]))),
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -195,7 +195,7 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
               onTap: _signOut,
               child: Center(
                 child: Text(
-                  "Sign Out",
+                  "${S.of(context).app_setting_SignOut}",
                   style: TextStyle(
                       color: Color.fromRGBO(179, 55, 66, 1),
                       fontSize: ScreenAdapter.size(40)),

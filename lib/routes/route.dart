@@ -12,11 +12,14 @@ import '../pages/modelLibrary/modelLib_page.dart';
 import '../pages/workspace/home_page.dart';
 import '../pages/login/register_page.dart';
 import '../pages/account/setting_page.dart';
+import '../pages/account/set_userInfo.dart';
+import '../pages/account/sex_page.dart';
+import '../pages/account/printer_manage.dart';
 import '../pages/account/collection_page.dart';
 import '../pages/account/printHistory_page.dart';
 import '../pages/account/account_setting.dart';
 import '../pages/account/help_suggest.dart';
-
+import '../pages/account/userInfo_page.dart';
 import '../pages/modelLibrary/model_detail.dart';
 import '../pages/modelLibrary/modelList_page.dart';
 import '../pages/modelLibrary/searchModel_page.dart';
@@ -37,7 +40,10 @@ final routes = {
   "/message": (BuildContext context) => MessageListPage(),
   "/setting": (BuildContext context) => AccountSettingPage(),
   "/help": (BuildContext context) => HelpSugPage(),
-
+  "/userInfo": (BuildContext context) => UserInfoPage(),
+  "/setUserInfo": (BuildContext context) => SetUserInfoPage(),
+  "/setUserSex": (BuildContext context) => SexOptionPage(),
+  "/printerManage": (BuildContext context) => PrinterManage(),
   "/scan":(BuildContext context)=> ScanWidget(),
   "/modelLib":(BuildContext context)=> ModelLibraryPage(),
   "/modelDetail":(BuildContext context,{arguments})=> ModelDetailPage(arguments: arguments),

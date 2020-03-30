@@ -30,8 +30,8 @@ import '../../utils/ScreenAdapter.dart';
 import 'package:provider/provider.dart';
 import '../provider/printerParams.dart';
 import '../provider/printCommand.dart';
-
-GlobalKey<_HomeState> childKey = GlobalKey();
+import '../../generated/i18n.dart';
+GlobalKey<_HomeState> childKey = GlobalKey<_HomeState>();
 
 class Home extends StatefulWidget {
   Home({Key key}) : super(key: key);
@@ -51,7 +51,7 @@ class _HomeState extends State<Home> {
     "connected",
     "Printing will start,",
     "Printing...",
-    "Temporarily stop Printing"
+    "stop Printing"
   ];
 
   Timer _timer; //轮询查询打印机状态
@@ -63,13 +63,13 @@ class _HomeState extends State<Home> {
     isBindPrint();
     getUserBidPrinter(); //获取用户绑定的打印机
     // initTimer();
-    // checkPrintTaskStatus();
     print("home页面int");
   }
 
   initTimer() {
-    _timer = new Timer.periodic(Duration(seconds: 10), (timer) {
+    _timer = new Timer.periodic(Duration(seconds: 5), (timer) {
       getPrinterInfo();
+      getPrintTaskDetail();
     });
   }
 
@@ -82,8 +82,25 @@ class _HomeState extends State<Home> {
   //获取打印任务状态
   checkPrintTaskStatus() {
     if (Provider.of<PrinterIdProvider>(context).printTaskCode != null) {
-      showToast("有的");
+      initTimer();
+    } else {
+      print("没有");
     }
+  }
+
+  //获取打印任务详情
+  getPrintTaskDetail() async {
+    NetRequest.get(Config.BASE_URL +
+            "printTask/${Provider.of<PrinterIdProvider>(context).printTaskCode}")
+        .then((res) {
+      if (res["code"] == 200) {
+        print(res);
+        Provider.of<PrinterIdProvider>(context)
+            .changePrintTaskDetail(res["data"]);
+      } else {
+        showToast(res["msg"]);
+      }
+    });
   }
 
   //获取用户绑定的打印机
@@ -144,14 +161,22 @@ class _HomeState extends State<Home> {
 
   //获取打印机详情信息
   getPrinterInfo() async {
-    print(Config.BASE_URL + printerInfo + "/${Provider.of<PrinterIdProvider>(context).printId}");
-    var res = await NetRequest.get(Config.BASE_URL +printerInfo + "/${Provider.of<PrinterIdProvider>(context).printId}").then((res) {
+    print(Config.BASE_URL +
+        printerInfo +
+        "/${Provider.of<PrinterIdProvider>(context).printId}");
+    var res = await NetRequest.get(Config.BASE_URL +
+            printerInfo +
+            "/${Provider.of<PrinterIdProvider>(context).printId}")
+        .then((res) {
       if (res["code"] == 200) {
         print("res = ${res}");
         //修改打印机详情Provider
-        Provider.of<PrinterIdProvider>(context).changePrinterParams(res["data"]);
-        Provider.of<PrinterIdProvider>(context).changePrinterStatus(res["data"]["printState"]);
-        print("provider = ${Provider.of<PrinterIdProvider>(context).printerParams}");
+        Provider.of<PrinterIdProvider>(context)
+            .changePrinterParams(res["data"]);
+        Provider.of<PrinterIdProvider>(context)
+            .changePrinterStatus(res["data"]["printState"]);
+        print(
+            "provider = ${Provider.of<PrinterIdProvider>(context).printerParams}");
       }
     });
   }
@@ -243,7 +268,7 @@ class _HomeState extends State<Home> {
         appBar: AppBar(
           brightness: Brightness.light,
           title: Text(
-            "WorkSpace",
+            "${S.of(context).app_home_title}",
             style: TextStyle(color: Colors.white),
           ),
           centerTitle: true,
@@ -295,8 +320,7 @@ class _HomeState extends State<Home> {
                               children: <Widget>[_banner(), _printStatus()],
                             ),
                           ),
-                          Provider.of<PrinterIdProvider>(context).printStatus ==
-                                  0
+                          Provider.of<PrinterIdProvider>(context).printTaskCode == null
                               ? Container()
                               : Positioned(
                                   top: ScreenAdapter.height(60),
@@ -322,17 +346,17 @@ class _HomeState extends State<Home> {
   //打印机Banner
   Widget _banner() {
     print(
-        "provider percent = ${Provider.of<PrinterIdProvider>(context).printerParams['printProgress']}");
+        "provider percent = ${Provider.of<PrinterIdProvider>(context).printTaskDetail['printprocess']}");
     return Container(
       margin: EdgeInsets.fromLTRB(30, 10, 0, 0),
       decoration: BoxDecoration(color: Colors.white),
       child: Column(
         children: <Widget>[
-          Provider.of<PrinterIdProvider>(context).printerParams["printState"] ==
-                  0
+          Provider.of<PrinterIdProvider>(context).printerParams["printState"] !=
+                  3
               ? Container(
                   width: ScreenUtil().setWidth(380),
-                  height: 20,
+                  height: 15,
                   color: Colors.white,
                 )
               : Container(
@@ -341,7 +365,7 @@ class _HomeState extends State<Home> {
                   child: LinearPercentIndicator(
                     width: ScreenUtil().setWidth(260),
                     animation: true,
-                    lineHeight: 20.0,
+                    lineHeight: 15.0,
                     animationDuration: 1500,
                     percent: Provider.of<PrinterIdProvider>(context)
                             .printerParams['printProgress'] /
@@ -378,7 +402,7 @@ class _HomeState extends State<Home> {
             ),
             margin: EdgeInsets.only(top: ScreenUtil().setHeight(80)),
             padding: EdgeInsets.fromLTRB(5, 5, 10, 5),
-            child: Text("Printer status",
+            child: Text("${S.of(context).app_home_PrintState}",
                 textAlign: TextAlign.right,
                 style: TextStyle(
                     fontSize: ScreenUtil().setSp(25),

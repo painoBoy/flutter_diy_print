@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_country_picker/flutter_country_picker.dart';
 import 'dart:async';
-
+import '../../generated/i18n.dart';
 class RegisterPage extends StatefulWidget {
   @override
   _RegisterPageState createState() => _RegisterPageState();
@@ -115,18 +115,18 @@ class _RegisterPageState extends State<RegisterPage> {
                                       "assets/images/register/phone_icon.png",
                                       width: ScreenUtil().setWidth(30),
                                     ),
-                                    CountryPicker(
-                                      showName: false,
-                                      showDialingCode: true,
-                                      onChanged: (Country country) {
-                                        setState(() {
-                                          _selected = country;
-                                        });
-                                        print("${country.dialingCode}");
-                                      },
-                                      selectedCountry: _selected,
+                              CountryPicker(
+                                        showName: false,
+                                        showDialingCode: true,
+                                        onChanged: (Country country) {
+                                          setState(() {
+                                            _selected = country;
+                                          });
+                                          print("${country.dialingCode}");
+                                        },
+                                        selectedCountry: _selected,
                                     ),
-                                    Container(
+                                    Expanded(child: Container(
                                       width: ScreenUtil.getInstance()
                                           .setWidth(300),
                                       height: ScreenUtil.getInstance()
@@ -136,13 +136,13 @@ class _RegisterPageState extends State<RegisterPage> {
                                         controller: _phoneController,
                                         decoration: InputDecoration(
                                           hintText:
-                                              "Please enter your phone number",
+                                          "${S.of(context).app_register_phone}",
                                           hintStyle: TextStyle(
                                               color: Colors.grey[400]),
                                           border: InputBorder.none,
                                         ),
                                       ),
-                                    ),
+                                    ),),
                                   ],
                                 )),
                             Stack(
@@ -166,7 +166,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     keyboardType: TextInputType.number,
                                     controller: _userNameController,
                                     decoration: InputDecoration(
-                                        hintText: "Verification code",
+                                        hintText: "${S.of(context).app_register_vCode}",
                                         hintStyle:
                                             TextStyle(color: Colors.grey[400]),
                                         border: InputBorder.none,
@@ -199,8 +199,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                         ),
                                         child: Text(
                                           _countdownTime > 0
-                                              ? "${_countdownTime}s后重新获取"
-                                              : "获取验证码",
+                                              ? "${_countdownTime}s${S.of(context).app_register_notice}"
+                                              : S.of(context).app_register_svCode,
                                           maxLines: 1,
                                           style: TextStyle(
                                               color: Color(0xFFF79432)),
@@ -229,7 +229,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 decoration: InputDecoration(
                                     hintStyle:
                                         TextStyle(color: Colors.grey[400]),
-                                    hintText: "Please enter your Password",
+                                    hintText: "${S.of(context).app_register_pwd}",
                                     border: InputBorder.none,
                                     icon: Image.asset(
                                       "assets/images/login_image/password_icon.png",
@@ -267,7 +267,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 width: ScreenUtil.getInstance().setWidth(580),
                                 height: ScreenUtil.getInstance().setHeight(85),
                                 child: Text(
-                                  "Sign Up",
+                                  "${S.of(context).app_register_signUpBtn}",
                                   style: TextStyle(color: Colors.white),
                                 ),
                               ),
@@ -288,7 +288,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     }
                                   },
                                   child: Text(
-                                    "Create Email Account",
+                                    "${S.of(context).app_register_cea}",
                                     style: TextStyle(color: Color(0xFF2681FD)),
                                   ),
                                 ))),
@@ -299,7 +299,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 child: Container(
                                   width: ScreenUtil.getInstance().setWidth(520),
                                   alignment: Alignment.bottomRight,
-                                  child: Text("have an account ?",
+                                  child: Text("${S.of(context).app_register_backLogin} ?",
                                       style:
                                           TextStyle(color: Color(0xFFF79432))),
                                 ))
@@ -343,7 +343,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 decoration: InputDecoration(
                                     hintStyle:
                                         TextStyle(color: Colors.grey[400]),
-                                    hintText: "Please enter your E-Mail",
+                                    hintText: "${S.of(context).app_register_email}",
                                     border: InputBorder.none,
                                     icon: Image.asset(
                                       "assets/images/register/mail.png",
@@ -374,7 +374,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     keyboardType: TextInputType.number,
                                     controller: _userNameController,
                                     decoration: InputDecoration(
-                                        hintText: "Verification code",
+                                        hintText: "${S.of(context).app_register_vCode}",
                                         hintStyle:
                                             TextStyle(color: Colors.grey[400]),
                                         border: InputBorder.none,
@@ -407,8 +407,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                         ),
                                         child: Text(
                                           _countdownTime > 0
-                                              ? "${_countdownTime}s后重新获取"
-                                              : "获取验证码",
+                                              ? "${_countdownTime}s${S.of(context).app_register_notice}"
+                                              : S.of(context).app_register_svCode,
                                           maxLines: 1,
                                           style: TextStyle(
                                               color: Color(0xFFF79432)),
@@ -438,7 +438,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 decoration: InputDecoration(
                                     hintStyle:
                                         TextStyle(color: Colors.grey[400]),
-                                    hintText: "Please enter your Password",
+                                    hintText: "${S.of(context).app_register_pwd}",
                                     border: InputBorder.none,
                                     icon: Image.asset(
                                       "assets/images/login_image/password_icon.png",
@@ -476,7 +476,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 width: ScreenUtil.getInstance().setWidth(580),
                                 height: ScreenUtil.getInstance().setHeight(85),
                                 child: Text(
-                                  "Sign Up",
+                                  "${S.of(context).app_register_signUpBtn}",
                                   style: TextStyle(color: Colors.white),
                                 ),
                               ),
@@ -497,7 +497,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     }
                                   },
                                   child: Text(
-                                    "Create Phone Account",
+                                    "${S.of(context).app_register_phoneSignUp}",
                                     style: TextStyle(color: Color(0xFF2681FD)),
                                   ),
                                 ))),
@@ -508,7 +508,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 child: Container(
                                   width: ScreenUtil.getInstance().setWidth(520),
                                   alignment: Alignment.bottomRight,
-                                  child: Text("have an account ?",
+                                  child: Text("${S.of(context).app_register_backLogin} ?",
                                       style:
                                           TextStyle(color: Color(0xFFF79432))),
                                 ))

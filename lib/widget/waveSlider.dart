@@ -41,15 +41,16 @@ class _WaveSliderState extends State<WaveSlider> {
       _dragPosition = newDragPosition;
       _dragPercentage = _dragPosition / widget.width;
     });
-    int _tempData = (_dragPercentage * 100).round();
-   
+    int _tempData = (((_dragPercentage * 100).round()) * 2.6).round();
+    print("_tempData = ${_tempData}");
     //传递父组件温度值
     widget.callback1(_tempData.toDouble());
     Provider.of<NozzleWarm>(context).changeNozzleWarm(_tempData.toDouble());
     _tempController.text =
         Provider.of<NozzleWarm>(context).nozzleWarm.round().toString();
     if ((_dragPercentage * 100).round() > 90) {
-      Provider.of<NozzleWarm>(context).changeTemValue1(180.0 - ScreenAdapter.width(20));
+      Provider.of<NozzleWarm>(context)
+          .changeTemValue1(180.0 - ScreenAdapter.width(20));
     } else if ((_dragPercentage * 100).round() < 5) {
       Provider.of<NozzleWarm>(context).changeTemValue1(5.0);
     } else {
@@ -74,15 +75,14 @@ class _WaveSliderState extends State<WaveSlider> {
   }
 
   void _changeInput(double val) {
-    if (val.toInt() > 100) {
-      showToast("The setting value must be lower than 100",
+    if (val.toInt() > 260) {
+      showToast("The setting value must be lower than 260",
           position: ToastPosition.bottom, backgroundColor: Colors.grey[500]);
       return;
-    } else if (val.toInt() > 90) {
+    } else if (val.toInt() > 240) {
       double _temp = double.parse(_tempController.text);
       Provider.of<NozzleWarm>(context).changeNozzleWarm(_temp);
       Provider.of<NozzleWarm>(context).changeTemValue1(180.0);
-     
     } else if (val.toInt() < 2) {
       double _temp = double.parse(_tempController.text);
       Provider.of<NozzleWarm>(context).changeNozzleWarm(_temp);
@@ -90,8 +90,8 @@ class _WaveSliderState extends State<WaveSlider> {
     } else {
       double _temp = double.parse(_tempController.text);
       Provider.of<NozzleWarm>(context).changeNozzleWarm(_temp);
-      Provider.of<NozzleWarm>(context).changeTemValue1(_customInt * Provider.of<NozzleWarm>(context).nozzleWarm);
-       
+      Provider.of<NozzleWarm>(context).changeTemValue1(
+          _customInt * Provider.of<NozzleWarm>(context).nozzleWarm);
     }
   }
 
@@ -114,7 +114,8 @@ class _WaveSliderState extends State<WaveSlider> {
     // TODO: implement initState
     super.initState();
     new Future.delayed(Duration.zero, () {
-      _tempController.text = Provider.of<NozzleWarm>(context).nozzleWarm.round().toString();
+      _tempController.text =
+          Provider.of<NozzleWarm>(context).nozzleWarm.round().toString();
     });
   }
 
@@ -134,51 +135,51 @@ class _WaveSliderState extends State<WaveSlider> {
           child: Row(
             children: <Widget>[
               // Expanded(
-              //   child: 
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                      width: 200,
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text("0℃", style: TextStyle(fontSize: 10)),
-                          Text("50℃", style: TextStyle(fontSize: 10)),
-                          Text("100℃", style: TextStyle(fontSize: 10)),
-                        ],
-                      ),
+              //   child:
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    width: 200,
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text("0℃", style: TextStyle(fontSize: 10)),
+                        Text("130℃", style: TextStyle(fontSize: 10)),
+                        Text("260℃", style: TextStyle(fontSize: 10)),
+                      ],
                     ),
-                    GestureDetector(
-                      onHorizontalDragUpdate: (DragUpdateDetails update) =>
-                          _onDragUpdate(context, update),
-                      onHorizontalDragStart: (DragStartDetails start) =>
-                          _onDragStart(context, start),
-                      onHorizontalDragEnd: (DragEndDetails end) =>
-                          _onDragEnd(context, end),
-                      child: Stack(
-                        children: <Widget>[
-                          Container(                           
-                              padding: EdgeInsets.all(10),
-                              width: widget.width,
-                              child: Image.asset(
-                                "assets/images/workspace/line.png",
-                                fit: BoxFit.cover,
-                              )),
-                          Positioned(
-                              left: Provider.of<NozzleWarm>(context).tempValue1 ,
-                              top: 10,
-                              child: Container(
-                                  width: ScreenAdapter.width(40),
-                                  height: ScreenAdapter.width(40),
-                                  child: Image.asset(
-                                      "assets/images/workspace/slider_btn.png"))),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
+                  ),
+                  GestureDetector(
+                    onHorizontalDragUpdate: (DragUpdateDetails update) =>
+                        _onDragUpdate(context, update),
+                    onHorizontalDragStart: (DragStartDetails start) =>
+                        _onDragStart(context, start),
+                    onHorizontalDragEnd: (DragEndDetails end) =>
+                        _onDragEnd(context, end),
+                    child: Stack(
+                      children: <Widget>[
+                        Container(
+                            padding: EdgeInsets.all(10),
+                            width: widget.width,
+                            child: Image.asset(
+                              "assets/images/workspace/line.png",
+                              fit: BoxFit.cover,
+                            )),
+                        Positioned(
+                            left: Provider.of<NozzleWarm>(context).tempValue1,
+                            top: 10,
+                            child: Container(
+                                width: ScreenAdapter.width(40),
+                                height: ScreenAdapter.width(40),
+                                child: Image.asset(
+                                    "assets/images/workspace/slider_btn.png"))),
+                      ],
+                    ),
+                  )
+                ],
+              ),
               // ),
               Stack(
                 children: <Widget>[

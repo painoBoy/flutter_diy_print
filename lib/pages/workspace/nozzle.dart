@@ -111,8 +111,7 @@ class _NozzleWidgetState extends State<NozzleWidget> {
                 style: TextStyle(color: Colors.black),
                 children: <TextSpan>[
                   TextSpan(
-                      text:
-                          "0°C",
+                      text:"${Provider.of<PrinterIdProvider>(context).printerParams["endTmp"]}°C",
                       style: TextStyle(color: Color(0xFFF79432)))
                 ]),
           ),

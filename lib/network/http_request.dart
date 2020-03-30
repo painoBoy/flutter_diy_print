@@ -119,7 +119,6 @@ class NetRequest {
       baseUrl: Config.BASE_URL,
       //连接服务器超时时间，单位是毫秒.
       connectTimeout: 5000,
-
       ///  响应流上前后两次接受到数据的间隔，单位为毫秒。如果两次间隔超过[receiveTimeout]，
       ///  [Dio] 将会抛出一个[DioErrorType.RECEIVE_TIMEOUT]的异常.
       ///  注意: 这并不是接收数据的总时限.
@@ -154,21 +153,21 @@ class NetRequest {
   static post(path, {data, params}) async {
     print("post数据请求开始url=${path} data= ${data}");
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    Options options = Options(headers: {
+    Options options = Options(
+      headers: {
       // HttpHeaders.acceptHeader: "accept: application/json;charset=UTF-8",
       "Cookie": "JSESSIONID=" + prefs.getString("JSESSIONID")
     });
     print("JSESSIONID=${prefs.getString("JSESSIONID")}");
     try {
-      Response response = await Dio()
+      Response response  = await Dio()
           .post(path, data: data, queryParameters: params, options: options);
       print("Response->>>>>>>>>>>");
       if (response.data["code"] == 401) {
         showToast("Please log in",
             position: ToastPosition.bottom, backgroundColor: Colors.grey[500]);
         // Navigator.pushNamedAndRemoveUntil(context, "/", (Route<dynamic> route) => false);
-        Router.navigatorKey.currentState
-            .pushNamedAndRemoveUntil("/", ModalRoute.withName("/"));
+        Router.navigatorKey.currentState.pushNamedAndRemoveUntil("/", ModalRoute.withName("/"));
       }
       return response.data;
     } catch (e) {

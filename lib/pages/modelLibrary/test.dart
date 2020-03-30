@@ -39,6 +39,14 @@ void main() {
   //   }
   // }
   // print("?${flag}");
-  String _pageSize = "1";
-    print( (int.parse(_pageSize) + 1).toString());
+  Map s ={"id":123,"icon":"xxczx"};
+  List list  = [{"id":56,"icon":"xxczx"},{"id":323,"icon":"xxczx"},{"id":223,"icon":"xxczx"},{"id":123,"icon":"xxczx"},];
+  for(int i = 0; i<list.length; i++){
+    if(list[i]["id"]==123){
+      print("有");
+      break;
+    }else{
+      print("没有");
+    }
+  }
 }

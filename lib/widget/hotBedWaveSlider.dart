@@ -41,7 +41,7 @@ class _HotBedSliderState extends State<HotBedSlider> {
       _dragPosition = newDragPosition;
       _dragPercentage = _dragPosition / widget.width;
     });
-    int _tempData = (_dragPercentage * 100).round();
+    int _tempData = ((_dragPercentage * 100).round() * 1.2).round();
    
     //传递父组件温度值
     widget.callback1(_tempData.toDouble());
@@ -74,8 +74,8 @@ class _HotBedSliderState extends State<HotBedSlider> {
   }
 
   void _changeInput(double val) {
-    if (val.toInt() > 100) {
-      showToast("The setting value must be lower than 100",
+    if (val.toInt() > 120) {
+      showToast("The setting value must be lower than 120",
           position: ToastPosition.bottom, backgroundColor: Colors.grey[500]);
       return;
     } else if (val.toInt() > 90) {
@@ -131,8 +131,8 @@ class _HotBedSliderState extends State<HotBedSlider> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           Text("0℃", style: TextStyle(fontSize: 10)),
-                          Text("50℃", style: TextStyle(fontSize: 10)),
-                          Text("100℃", style: TextStyle(fontSize: 10)),
+                          Text("60℃", style: TextStyle(fontSize: 10)),
+                          Text("120℃", style: TextStyle(fontSize: 10)),
                         ],
                       ),
                     ),

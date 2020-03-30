@@ -16,6 +16,8 @@ import '../../network/api.dart';
 import '../../network/http_config.dart';
 import '../../network/http_request.dart';
 import 'dart:io';
+import '../../widget/loading.dart';
+import 'dart:async';
 
 //进退料
 class MaterialPanel extends StatefulWidget {
@@ -25,6 +27,8 @@ class MaterialPanel extends StatefulWidget {
 
 class _MaterialPanelState extends State<MaterialPanel> {
   bool isShowLoading = false;
+  String _notice = '';
+  Timer _timer;
 
   _materialIn(context, type) async {
     if (type == 0) {
@@ -166,6 +170,7 @@ class _MaterialPanelState extends State<MaterialPanel> {
   materailOut() async {
     if (mounted)
       setState(() {
+        _notice = "Printer is discharging, please wait a moment";
         isShowLoading = true;
       });
     Map params = {
@@ -173,15 +178,31 @@ class _MaterialPanelState extends State<MaterialPanel> {
       "printerId": Provider.of<PrinterIdProvider>(context).printId
     };
     var res = await NetRequest.post(Config.BASE_URL + pullOut, data: params);
-    if (mounted)
-      setState(() {
-        isShowLoading = false;
-      });
+
     if (res["code"] == 200) {
-      print(res);
-      showToast("Successful operation",
-          position: ToastPosition.bottom, backgroundColor: Colors.grey[500]);
+      _timer = Timer.periodic(Duration(seconds: 2), (timer) async {
+        NetRequest.get(Config.BASE_URL +
+                pullOutProgress +
+                "/${Provider.of<PrinterIdProvider>(context).printId}")
+            .then((result) {
+          if (result["data"][0] == 100) {
+            timer.cancel();
+            timer = null;
+            if (mounted)
+              setState(() {
+                isShowLoading = false;
+              });
+            showToast("Put out material successfully",
+                position: ToastPosition.bottom,
+                backgroundColor: Colors.grey[500]);
+          }
+        });
+      });
     } else {
+      if (mounted)
+        setState(() {
+          isShowLoading = false;
+        });
       showToast(res["msg"],
           position: ToastPosition.bottom, backgroundColor: Colors.grey[500]);
     }
@@ -191,6 +212,7 @@ class _MaterialPanelState extends State<MaterialPanel> {
   materailIn() async {
     if (mounted)
       setState(() {
+        _notice = "Printer feeding , please wait a moment";
         isShowLoading = true;
       });
     Map params = {
@@ -198,48 +220,70 @@ class _MaterialPanelState extends State<MaterialPanel> {
       "printerId": Provider.of<PrinterIdProvider>(context).printId
     };
     var res = await NetRequest.post(Config.BASE_URL + pullIn, data: params);
-    if (mounted)
-      setState(() {
-        isShowLoading = false;
-      });
+
     if (res["code"] == 200) {
       print(res);
-      showToast("Successful operation",
-          position: ToastPosition.bottom, backgroundColor: Colors.grey[500]);
+      _timer = Timer.periodic(Duration(seconds: 2), (timer) async {
+        NetRequest.get(Config.BASE_URL +
+                pullInProgress +
+                "/${Provider.of<PrinterIdProvider>(context).printId}")
+            .then((result) {
+          if (result["data"][0] == 100) {
+            timer.cancel();
+            timer = null;
+            if (mounted)
+              setState(() {
+                isShowLoading = false;
+              });
+            showToast("Put in material successfully",
+                position: ToastPosition.bottom,
+                backgroundColor: Colors.grey[500]);
+          }
+        });
+      });
     } else {
+      if (mounted)
+        setState(() {
+          isShowLoading = false;
+        });
       showToast(res["msg"],
           position: ToastPosition.bottom, backgroundColor: Colors.grey[500]);
     }
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    if (_timer != null) {
+      _timer.cancel();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-        color: Colors.white,
-        padding: EdgeInsets.fromLTRB(5, 15, 5, 10),
-        width: ScreenUtil().width,
-        child: Stack(
-          children: <Widget>[
-            Container(
-                alignment: Alignment.center,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    _item("进料", "assets/images/workspace/material_in.png",
-                        context, 0),
-                    _item("退料", "assets/images/workspace/material_out.png",
-                        context, 1),
-                  ],
-                )),
-            isShowLoading
-                ? Container(
-                    margin: EdgeInsets.fromLTRB(
-                        MediaQuery.of(context).size.width / 2 - 15, 50, 0, 0),
-                    child: CupertinoActivityIndicator(),
-                  )
-                : Container(),
-          ],
-        ));
+    return ProgressDialog(
+        loading: isShowLoading,
+        msg: '${_notice}',
+        child: Container(
+            color: Colors.white,
+            padding: EdgeInsets.fromLTRB(5, 15, 5, 10),
+            width: ScreenUtil().width,
+            child: Stack(
+              children: <Widget>[
+                Container(
+                    alignment: Alignment.center,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: <Widget>[
+                        _item("进料", "assets/images/workspace/material_in.png",
+                            context, 0),
+                        _item("退料", "assets/images/workspace/material_out.png",
+                            context, 1),
+                      ],
+                    )),
+              ],
+            )));
   }
 
   //进料 退料btn
