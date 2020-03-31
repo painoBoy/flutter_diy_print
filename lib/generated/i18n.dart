@@ -39,6 +39,9 @@ class S implements WidgetsLocalizations {
   String get app_navigationBar_account => "Account";
   String get app_navigationBar_modelLib => "Model Lib";
   String get app_navigationBar_workspace => "Workspace";
+  String get app_printerMan_name => "Name";
+  String get app_printerMan_status => "Printer Status";
+  String get app_printerMan_title => "Manage Printer";
   String get app_register_backLogin => "have an account";
   String get app_register_cea => "Create Email Account";
   String get app_register_email => "Please enter your Email";
@@ -78,6 +81,8 @@ class $zh extends S {
   @override
   String get app_userInfo_title => "个人信息";
   @override
+  String get app_printerMan_status => "打印机状态";
+  @override
   String get app_account_help => "帮助与反馈";
   @override
   String get app_login_others => "其他";
@@ -114,6 +119,8 @@ class $zh extends S {
   @override
   String get app_navigationBar_workspace => "工作台";
   @override
+  String get app_printerMan_title => "设备管理";
+  @override
   String get app_navigationBar_modelLib => "模型库";
   @override
   String get app_account_Management => "设备管理";
@@ -145,6 +152,8 @@ class $zh extends S {
   String get app_register_phoneSignUp => "手机注册";
   @override
   String get app_register_backLogin => "已有账号返回登录";
+  @override
+  String get app_printerMan_name => "名称";
   @override
   String get app_account_favorite => "我的收藏";
   @override

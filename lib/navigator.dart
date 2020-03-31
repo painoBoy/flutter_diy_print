@@ -82,6 +82,7 @@ class _NavigatorBarPageState extends State<NavigatorBarPage> {
           onTap: (int index) {
             if (index == 0) {
               // childKey.currentState.initTimer();
+              childKey.currentState.getUserBidPrinter();
               childKey.currentState.getPrinterInfo();
             // } else {
             //   childKey.currentState.cancelTimer();

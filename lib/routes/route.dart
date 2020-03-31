@@ -15,6 +15,7 @@ import '../pages/account/setting_page.dart';
 import '../pages/account/set_userInfo.dart';
 import '../pages/account/sex_page.dart';
 import '../pages/account/printer_manage.dart';
+import '../pages/account/printer_info.dart';
 import '../pages/account/collection_page.dart';
 import '../pages/account/printHistory_page.dart';
 import '../pages/account/account_setting.dart';
@@ -50,6 +51,7 @@ final routes = {
   "/modelList":(BuildContext context,{arguments})=> ModelListPage(arguments: arguments),
   "/searchModel":(BuildContext context,)=> SearchModelPage(),
   "/searchResult":(BuildContext context,{arguments})=> SearchResultPage(arguments:arguments),
+  "/printerInfo":(BuildContext context,{arguments})=> PrinterInfoPage(arguments:arguments),
 
 };
 

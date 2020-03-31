@@ -20,3 +20,6 @@ const createPrintTask = "printTask"; //创建打印任务
 const printTaskApi = "printTask/startNow"; //立即开始打印任务  
 const userTaskList = "printTask"; //查询用户所有打印任务  
 const editUserInfo = "users/editFromUser"; //修改用户信息
+const editPrinterName = "printer/updatePrinterName"; //修改打印机名称 
+const unBundPrinter = "printer/unbundlingPrinter"; //解绑打印机
+const feedback = "feedback/add"; //新增问题反馈

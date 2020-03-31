@@ -3,7 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_country_picker/flutter_country_picker.dart';
 import 'dart:async';
+import 'package:country_code_picker/country_code_picker.dart';
 import '../../generated/i18n.dart';
+
 class RegisterPage extends StatefulWidget {
   @override
   _RegisterPageState createState() => _RegisterPageState();
@@ -13,6 +15,7 @@ class _RegisterPageState extends State<RegisterPage> {
   int _regType = 0; // 0:手机号码注册 1:邮箱注册
   Country _selected;
   Timer _timer;
+  var countryCode ;
   //倒计时数值
   int _countdownTime = 0;
 
@@ -103,7 +106,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 decoration: BoxDecoration(
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(10)),
-                                  color: Color(0xFFF4F5F6),
+                                  color:Colors.grey[200],
                                   boxShadow: [
                                     BoxShadow(
                                         color: Colors.grey[350], blurRadius: 20)
@@ -115,34 +118,40 @@ class _RegisterPageState extends State<RegisterPage> {
                                       "assets/images/register/phone_icon.png",
                                       width: ScreenUtil().setWidth(30),
                                     ),
-                              CountryPicker(
-                                        showName: false,
-                                        showDialingCode: true,
-                                        onChanged: (Country country) {
-                                          setState(() {
-                                            _selected = country;
-                                          });
-                                          print("${country.dialingCode}");
-                                        },
-                                        selectedCountry: _selected,
+                                    CountryCodePicker(
+                                      onChanged: (code){setState(() {
+                                        countryCode = code;
+                                        print(code);
+                                      });},
+                                      // Initial selection and favorite can be one of code ('IT') OR dial_code('+39')
+                                      initialSelection: 'CN',
+                                      favorite: ['+86', 'CN'],
+                                      // optional. Shows only country name and flag
+                                      showCountryOnly: false,
+                                      // optional. Shows only country name and flag when popup is closed.
+                                      showOnlyCountryWhenClosed: false,
+                                      // optional. aligns the flag and the Text left
+                                      alignLeft: false,
                                     ),
-                                    Expanded(child: Container(
-                                      width: ScreenUtil.getInstance()
-                                          .setWidth(300),
-                                      height: ScreenUtil.getInstance()
-                                          .setHeight(85),
-                                      child: TextField(
-                                        keyboardType: TextInputType.phone,
-                                        controller: _phoneController,
-                                        decoration: InputDecoration(
-                                          hintText:
-                                          "${S.of(context).app_register_phone}",
-                                          hintStyle: TextStyle(
-                                              color: Colors.grey[400]),
-                                          border: InputBorder.none,
+                                    Expanded(
+                                      child: Container(
+                                        width: ScreenUtil.getInstance()
+                                            .setWidth(300),
+                                        height: ScreenUtil.getInstance()
+                                            .setHeight(85),
+                                        child: TextField(
+                                          keyboardType: TextInputType.phone,
+                                          controller: _phoneController,
+                                          decoration: InputDecoration(
+                                            hintText:
+                                                "${S.of(context).app_register_phone}",
+                                            hintStyle: TextStyle(
+                                                color: Colors.grey[400]),
+                                            border: InputBorder.none,
+                                          ),
                                         ),
                                       ),
-                                    ),),
+                                    ),
                                   ],
                                 )),
                             Stack(
@@ -166,7 +175,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                     keyboardType: TextInputType.number,
                                     controller: _userNameController,
                                     decoration: InputDecoration(
-                                        hintText: "${S.of(context).app_register_vCode}",
+                                        hintText:
+                                            "${S.of(context).app_register_vCode}",
                                         hintStyle:
                                             TextStyle(color: Colors.grey[400]),
                                         border: InputBorder.none,
@@ -200,9 +210,12 @@ class _RegisterPageState extends State<RegisterPage> {
                                         child: Text(
                                           _countdownTime > 0
                                               ? "${_countdownTime}s${S.of(context).app_register_notice}"
-                                              : S.of(context).app_register_svCode,
+                                              : S
+                                                  .of(context)
+                                                  .app_register_svCode,
                                           maxLines: 1,
                                           style: TextStyle(
+                                              fontSize: ScreenUtil().setSp(25),
                                               color: Color(0xFFF79432)),
                                         ),
                                       )),
@@ -229,7 +242,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                 decoration: InputDecoration(
                                     hintStyle:
                                         TextStyle(color: Colors.grey[400]),
-                                    hintText: "${S.of(context).app_register_pwd}",
+                                    hintText:
+                                        "${S.of(context).app_register_pwd}",
                                     border: InputBorder.none,
                                     icon: Image.asset(
                                       "assets/images/login_image/password_icon.png",
@@ -299,7 +313,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                 child: Container(
                                   width: ScreenUtil.getInstance().setWidth(520),
                                   alignment: Alignment.bottomRight,
-                                  child: Text("${S.of(context).app_register_backLogin} ?",
+                                  child: Text(
+                                      "${S.of(context).app_register_backLogin} ?",
                                       style:
                                           TextStyle(color: Color(0xFFF79432))),
                                 ))
@@ -343,7 +358,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                 decoration: InputDecoration(
                                     hintStyle:
                                         TextStyle(color: Colors.grey[400]),
-                                    hintText: "${S.of(context).app_register_email}",
+                                    hintText:
+                                        "${S.of(context).app_register_email}",
                                     border: InputBorder.none,
                                     icon: Image.asset(
                                       "assets/images/register/mail.png",
@@ -374,7 +390,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                     keyboardType: TextInputType.number,
                                     controller: _userNameController,
                                     decoration: InputDecoration(
-                                        hintText: "${S.of(context).app_register_vCode}",
+                                        hintText:
+                                            "${S.of(context).app_register_vCode}",
                                         hintStyle:
                                             TextStyle(color: Colors.grey[400]),
                                         border: InputBorder.none,
@@ -408,7 +425,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                         child: Text(
                                           _countdownTime > 0
                                               ? "${_countdownTime}s${S.of(context).app_register_notice}"
-                                              : S.of(context).app_register_svCode,
+                                              : S
+                                                  .of(context)
+                                                  .app_register_svCode,
                                           maxLines: 1,
                                           style: TextStyle(
                                               color: Color(0xFFF79432)),
@@ -438,7 +457,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                 decoration: InputDecoration(
                                     hintStyle:
                                         TextStyle(color: Colors.grey[400]),
-                                    hintText: "${S.of(context).app_register_pwd}",
+                                    hintText:
+                                        "${S.of(context).app_register_pwd}",
                                     border: InputBorder.none,
                                     icon: Image.asset(
                                       "assets/images/login_image/password_icon.png",
@@ -508,7 +528,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                 child: Container(
                                   width: ScreenUtil.getInstance().setWidth(520),
                                   alignment: Alignment.bottomRight,
-                                  child: Text("${S.of(context).app_register_backLogin} ?",
+                                  child: Text(
+                                      "${S.of(context).app_register_backLogin} ?",
                                       style:
                                           TextStyle(color: Color(0xFFF79432))),
                                 ))

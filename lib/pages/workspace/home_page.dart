@@ -31,6 +31,7 @@ import 'package:provider/provider.dart';
 import '../provider/printerParams.dart';
 import '../provider/printCommand.dart';
 import '../../generated/i18n.dart';
+
 GlobalKey<_HomeState> childKey = GlobalKey<_HomeState>();
 
 class Home extends StatefulWidget {
@@ -225,7 +226,7 @@ class _HomeState extends State<Home> {
       //绑定打印机
       var params = {
         "macAddress": _barcode.toString().split(":")[2],
-        "customerName": "Printer1"
+        "customerName": "Lotmaxx"
       };
       var res =
           await NetRequest.post(Config.BASE_URL + bindPrint, data: params);
@@ -320,7 +321,9 @@ class _HomeState extends State<Home> {
                               children: <Widget>[_banner(), _printStatus()],
                             ),
                           ),
-                          Provider.of<PrinterIdProvider>(context).printTaskCode == null
+                          Provider.of<PrinterIdProvider>(context)
+                                      .printTaskCode ==
+                                  null
                               ? Container()
                               : Positioned(
                                   top: ScreenAdapter.height(60),
@@ -334,7 +337,7 @@ class _HomeState extends State<Home> {
                       ),
                       Container(
                         width: screenWidth,
-                        child: TabBarPrint(),
+                        child: TabBarPrint(key:tabsKey),
                       ),
                     ],
                   ),
@@ -379,10 +382,13 @@ class _HomeState extends State<Home> {
                     progressColor: Color(0xFFF79432),
                   ),
                 ),
-          Image.asset(
-            "assets/images/workspace/banner_printer.png",
-            width: ScreenUtil().setWidth(380),
-            height: ScreenUtil().setHeight(300),
+          GestureDetector(
+            onTap: (){tabsKey.currentState._changeTabsController();},
+            child: Image.asset(
+              "assets/images/workspace/banner_printer.png",
+              width: ScreenUtil().setWidth(380),
+              height: ScreenUtil().setHeight(300),
+            )
           )
         ],
       ),
@@ -559,8 +565,15 @@ class _HomeState extends State<Home> {
   }
 }
 
+
+
+GlobalKey<_TabBarPrintState> tabsKey = GlobalKey();
 //操作面板
 class TabBarPrint extends StatefulWidget {
+
+    TabBarPrint({
+        Key key,
+    }) : super(key: key);
   @override
   _TabBarPrintState createState() => _TabBarPrintState();
 }
@@ -569,12 +582,26 @@ class _TabBarPrintState extends State<TabBarPrint>
     with SingleTickerProviderStateMixin {
   TabController _controller;
   double _progress = 0;
-
+  int _tabsLength = 4;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _controller = TabController(vsync: this, length: 4, initialIndex: 0);
+  }
+
+  _changeTabsController() {
+    if (_tabsLength == 4) {
+      setState(() {
+        _tabsLength = 5;
+        _controller = TabController(vsync: this, length: _tabsLength, initialIndex: 0);
+      });
+    }else{
+      setState(() {
+        _tabsLength = 4;
+      _controller = TabController(vsync: this, length: _tabsLength, initialIndex: 0);
+    });
+    }
   }
 
   @override
@@ -595,6 +622,7 @@ class _TabBarPrintState extends State<TabBarPrint>
                   child: Material(
                     color: Colors.white,
                     child: TabBar(
+                      isScrollable: true,
                       labelColor: Color(0xFFF79432),
                       unselectedLabelColor: Colors.grey[600],
                       unselectedLabelStyle: TextStyle(
@@ -603,7 +631,8 @@ class _TabBarPrintState extends State<TabBarPrint>
                       indicatorColor: Color(0xFFF79432),
                       indicatorSize: TabBarIndicatorSize.label,
                       ////指示器大小的计算方式，TabBarIndicatorSize.tab：跟每个tab等宽，
-                      tabs: <Widget>[
+                      tabs: _tabsLength == 4 ?
+                      <Widget>[
                         Container(
                           height: ScreenAdapter.height(200),
                           child: Tab(
@@ -645,6 +674,59 @@ class _TabBarPrintState extends State<TabBarPrint>
                               ),
                               text: "耗材",
                             )),
+                      ]
+                      :<Widget>[
+                        Container(
+                          height: ScreenAdapter.height(200),
+                          child: Tab(
+                            icon: Image.asset(
+                              "assets/images/workspace/warm_tab.png",
+                              width: ScreenUtil().setWidth(100),
+                              height: ScreenUtil().setHeight(90),
+                            ),
+                            text: "喷嘴温度",
+                          ),
+                        ),
+                        Container(
+                            height: ScreenAdapter.height(200),
+                            child: Tab(
+                              icon: Image.asset(
+                                "assets/images/workspace/hotbed_tab.png",
+                                width: ScreenUtil().setWidth(100),
+                                height: ScreenUtil().setHeight(90),
+                              ),
+                              text: "热床温度",
+                            )),
+                        Container(
+                            height: ScreenAdapter.height(200),
+                            child: Tab(
+                              icon: Image.asset(
+                                "assets/images/workspace/move_shaft_tab.png",
+                                width: ScreenUtil().setWidth(100),
+                                height: ScreenUtil().setHeight(90),
+                              ),
+                              text: "移动轴",
+                            )),
+                        Container(
+                            height: ScreenAdapter.height(200),
+                            child: Tab(
+                              icon: Image.asset(
+                                "assets/images/workspace/material_tab.png",
+                                width: ScreenUtil().setWidth(100),
+                                height: ScreenUtil().setHeight(90),
+                              ),
+                              text: "耗材",
+                            )),
+                        Container(
+                            height: ScreenAdapter.height(200),
+                            child: Tab(
+                              icon: Image.asset(
+                                "assets/images/workspace/move_shaft_tab.png",
+                                width: ScreenUtil().setWidth(100),
+                                height: ScreenUtil().setHeight(90),
+                              ),
+                              text: "移动轴",
+                            )),
                       ],
                       controller: _controller,
                     ),
@@ -654,12 +736,20 @@ class _TabBarPrintState extends State<TabBarPrint>
               flex: 2,
               child: TabBarView(
                 controller: _controller,
-                children: <Widget>[
-                  NozzleWidget(), //喷嘴温度
-                  HotBedWidget(), //热床温度
-                  MoveWidget(), //移动轴
-                  MaterialPanel(), //耗材
-                ],
+                children: _tabsLength == 4
+                    ? <Widget>[
+                        NozzleWidget(), //喷嘴温度
+                        HotBedWidget(), //热床温度
+                        MoveWidget(), //移动轴
+                        MaterialPanel(), //耗材
+                      ]
+                    : <Widget>[
+                        NozzleWidget(), //喷嘴温度
+                        HotBedWidget(), //热床温度
+                        MoveWidget(), //移动轴
+                        MaterialPanel(), //耗材
+                        MoveWidget(), //移动轴
+                      ],
               ),
             )
           ],

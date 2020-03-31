@@ -38,6 +38,10 @@
   "app_setting_SignOutNotice": "Are you sure want to log out",
   "app_setting_SignOutOK": "OK",
   "app_setting_SignOutCancel": "Cancel",
-  "app_userInfo_title": "UserInfo"
+  "app_userInfo_title": "UserInfo",
+  "app_printerMan_title": "Manage Printer",
+  "app_printerMan_name": "Name",
+  "app_printerMan_status": "Printer Status",
+  "app_printerMan_batch": "Batch Num"
 
 }

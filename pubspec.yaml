@@ -24,8 +24,8 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   flutter_country_picker: ^0.1.6 #国家选择器 
-  international_phone_input: ^1.0.2 #国家选择器
   percent_indicator: ^2.1.1+1 #进度指示器
+  country_code_picker: ^1.3.7 #选择国家
   flutter_screenutil: ^0.7.0
   provider: ^3.2.0     
   dio: ^3.0.7          #网络请求
@@ -36,7 +36,7 @@ dependencies:
   flutter_swiper: ^1.1.6 #轮播 
   # image_picker: ^0.6.3+4
   transparent_image: ^1.0.0 #图片加载占位符 
-  flutter_easyrefresh: ^2.0.9 #上拉（下拉）刷新
+  flutter_easyrefresh: ^2.0.9 #上拉（下拉）刷新 
   flutter_facebook_login: ^1.2.0
   flutter_localizations: #多语言
     sdk: flutter

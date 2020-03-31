@@ -37,7 +37,11 @@
   "app_setting_SignOutNotice": "确定要退出吗",
   "app_setting_SignOutOK": "确定",
   "app_setting_SignOutCancel": "取消",
-  "app_userInfo_title": "个人信息"
+  "app_userInfo_title": "个人信息",
+  "app_printerMan_title": "设备管理",
+  "app_printerMan_name": "名称",
+  "app_printerMan_status": "打印机状态",
+  "app_printerMan_batch": "批次号"
 
 
 
